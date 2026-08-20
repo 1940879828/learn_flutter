@@ -55,7 +55,7 @@
 - 能知道什么时候需要 `dispose`。
 - 能从目标项目页面定位一个按钮点击后的代码路径。
 
-## QA 问答（面试官常问）
+## QA 问答
 
 ### Q1：为什么 Flutter 不是“DOM 重渲染”模型？
 Flutter 通过 Widget、Element、RenderObject 分层工作，`build()` 重建的是配置，渲染对象复用会尽量避免无意义开销，不等同于浏览器每次全量重绘 DOM。

@@ -6,6 +6,15 @@
 - 建立 Dart 和 TypeScript 的差异地图。
 - 能读懂目标项目中常见的 Dart 写法。
 
+## 这章怎么学
+
+这一章不要只读概念，建议按这个顺序走：
+
+1. 先打开 `notes/02-Dart基础与TS迁移-教学.md`，把每一节的对照关系看一遍。
+2. 再看 `lib/chapter_02/dart_migration.dart`，理解一个最小 Dart 数据模型是怎么写出来的。
+3. 跑 `test/chapter_02_dart_migration_test.dart`，确认你真的能把概念落成代码。
+4. 最后回到 `flutter-spell-ai` 的 `lib/model/` 和 `lib/extension/`，观察真实项目怎么把同样的东西放大。
+
 ## Web 前端迁移映射
 
 - TypeScript 的 `interface/type` 常被 Dart 的 `class`、`record`、`typedef`、泛型替代。
@@ -28,9 +37,14 @@
 
 ## 最小练习
 
-在本仓库写一个 Dart/Flutter 小练习：
+在本仓库写一个 Dart/Flutter 小练习。推荐直接看并运行：
 
-- 定义一个 `SpellTask` 模型，包含 id、prompt、status、createdAt。
+- `lib/chapter_02/dart_migration.dart`
+- `test/chapter_02_dart_migration_test.dart`
+
+你需要能解释下面几件事：
+
+- 定义一个 `SpellTask` 模型，包含 `id`、`prompt`、`status`、`createdAt`。
 - 写一个异步函数模拟创建任务，返回 `Future<SpellTask>`。
 - 用 extension 给 `DateTime` 增加格式化方法。
 - 用 `enum` 表达任务状态。
@@ -56,7 +70,11 @@
 - 能读懂一个目标项目 model 文件和它对应的 `.g.dart`。
 - 能解释 extension 为什么在这个项目里很常见。
 
-## QA 问答（面试官常问）
+## 配套教学
+
+如果你现在卡住了，直接看 `notes/02-Dart基础与TS迁移-教学.md`。那份文档会把本章拆成更细的步骤，并且和本仓库里的练习代码一一对应。
+
+## QA 问答
 
 ### Q1：Dart 的 `final`、`const` 和 `var` 的区别是什么？
 `final` 是运行时一次赋值后不可变；`const` 是编译期常量（必须在编译时可确定），`var` 只是类型推断变量，可以后续赋予同一类型值但仍可变。
