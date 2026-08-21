@@ -7,6 +7,7 @@ class SpellTask {
   final DateTime createdAt;
   final String? resultUrl;
 
+  // 无参构造
   const SpellTask({
     required this.id,
     required this.prompt,
@@ -15,6 +16,7 @@ class SpellTask {
     this.resultUrl,
   });
 
+  // 工厂构造
   factory SpellTask.create({
     required String id,
     required String prompt,
