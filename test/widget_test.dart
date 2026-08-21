@@ -27,4 +27,25 @@ void main() {
     expect(find.text('0'), findsNothing);
     expect(find.text('1'), findsOneWidget);
   });
+
+  testWidgets('Counter section responds to external config changes', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const MyApp());
+
+    expect(
+      find.text('You have pushed the button this many times:'),
+      findsOneWidget,
+    );
+    expect(find.text('你已经点击按钮这么多次：'), findsNothing);
+
+    await tester.tap(find.text('切换外部文案'));
+    await tester.pump();
+
+    expect(
+      find.text('You have pushed the button this many times:'),
+      findsNothing,
+    );
+    expect(find.text('你已经点击按钮这么多次：'), findsOneWidget);
+  });
 }

@@ -53,13 +53,64 @@ class MyHomePage extends StatelessWidget {
         // 也就是上层在创建页面时给这个 AppBar 设置的标题。
         title: Text(title),
       ),
-      body: const CounterSection(),
+      body: const LifecycleHost(),
+    );
+  }
+}
+
+class LifecycleHost extends StatefulWidget {
+  const LifecycleHost({super.key});
+
+  @override
+  State<LifecycleHost> createState() => _LifecycleHostState();
+}
+
+class _LifecycleHostState extends State<LifecycleHost> {
+  bool _useChineseLabel = false;
+  bool _showCounter = true;
+
+  String get _counterLabel {
+    if (_useChineseLabel) {
+      return '你已经点击按钮这么多次：';
+    }
+    return 'You have pushed the button this many times:';
+  }
+
+  void _toggleLabel() {
+    setState(() {
+      _useChineseLabel = !_useChineseLabel;
+    });
+  }
+
+  void _toggleCounter() {
+    setState(() {
+      _showCounter = !_showCounter;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          if (_showCounter) CounterSection(label: _counterLabel),
+          const SizedBox(height: 16),
+          TextButton(onPressed: _toggleLabel, child: const Text('切换外部文案')),
+          TextButton(
+            onPressed: _toggleCounter,
+            child: Text(_showCounter ? '移除计数器' : '恢复计数器'),
+          ),
+        ],
+      ),
     );
   }
 }
 
 class CounterSection extends StatefulWidget {
-  const CounterSection({super.key});
+  const CounterSection({super.key, required this.label});
+
+  final String label;
 
   @override
   State<CounterSection> createState() => _CounterSectionState();
@@ -67,6 +118,27 @@ class CounterSection extends StatefulWidget {
 
 class _CounterSectionState extends State<CounterSection> {
   int _counter = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    debugPrint('CounterSection initState：首次创建状态对象');
+  }
+
+  @override
+  void didUpdateWidget(covariant CounterSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    debugPrint(
+      'CounterSection didUpdateWidget：外部配置变化，'
+      'oldLabel=${oldWidget.label}, newLabel=${widget.label}',
+    );
+  }
+
+  @override
+  void dispose() {
+    debugPrint('CounterSection dispose：状态对象被销毁，释放资源');
+    super.dispose();
+  }
 
   void _incrementCounter() {
     setState(() {
@@ -78,32 +150,18 @@ class _CounterSectionState extends State<CounterSection> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      // `Center` 是一个布局 Widget，它只接收一个子组件，
-      // 并把这个子组件放在父组件的正中间。
-      child: Column(
-        // `Column` 也是一个布局 Widget，它接收多个子组件，并把它们竖直排列。
-        // 默认情况下，它会在水平方向上包住自己的子组件，
-        // 在垂直方向上尽量撑满父组件。
-        //
-        // `Column` 有很多属性可以控制尺寸和排列方式。
-        // 这里我们用 `mainAxisAlignment` 把子组件在垂直方向居中。
-        // 因为 `Column` 的主轴是竖直方向，交叉轴才是水平方向。
-        //
-        // 你可以试试：在 IDE 里打开 debug painting，
-        // 或者在控制台里按 `p`，看看每个 Widget 的边框线。
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          const Text('You have pushed the button this many times:'),
-          Text('$_counter', style: Theme.of(context).textTheme.headlineMedium),
-          const SizedBox(height: 16),
-          FloatingActionButton(
-            onPressed: _incrementCounter,
-            tooltip: 'Increment',
-            child: const Icon(Icons.add),
-          ),
-        ],
-      ), // 这个尾随逗号能让 build 方法更方便自动格式化。
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        Text(widget.label),
+        Text('$_counter', style: Theme.of(context).textTheme.headlineMedium),
+        const SizedBox(height: 16),
+        FloatingActionButton(
+          onPressed: _incrementCounter,
+          tooltip: 'Increment',
+          child: const Icon(Icons.add),
+        ),
+      ],
     );
   }
 }
