@@ -60,6 +60,60 @@ class LayoutLabPage extends StatelessWidget {
         icon: Icons.phone_iphone_outlined,
         builder: (_) => const SafeAreaLayoutPage(),
       ),
+      _LayoutCase(
+        title: '我的居中练习',
+        subtitle: '第一个案例',
+        icon: Icons.edit_outlined,
+        builder: (_) => const MyCenterPracticePage(),
+      ),
+      _LayoutCase(
+        title: '我的横向信息卡练习',
+        subtitle: '第二个案例',
+        icon: Icons.view_agenda_outlined,
+        builder: (_) => const MyRowColumnFlexLayoutPage(),
+      ),
+      _LayoutCase(
+        title: '我的比例分栏',
+        subtitle: 'Expanded flex：按比例分配剩余空间',
+        icon: Icons.view_week_outlined,
+        builder: (_) => const MyExpandedFlexibleLayoutPage(),
+      ),
+      _LayoutCase(
+        title: '我的卡片列表',
+        subtitle: 'ListView 思路：重复内容纵向滚动',
+        icon: Icons.list_alt_outlined,
+        builder: (_) => const MyCardListLayoutPage(),
+      ),
+      _LayoutCase(
+        title: '两列网格',
+        subtitle: 'GridView：图库、模板、作品集常用',
+        icon: Icons.grid_view_outlined,
+        builder: (_) => const MyTwoColumnGridLayoutPage(),
+      ),
+      _LayoutCase(
+        title: '我的图片遮罩叠层',
+        subtitle: 'Stack + Positioned：图片上叠文字和按钮',
+        icon: Icons.layers_outlined,
+        builder: (_) => const MyStackOverlayLayoutPage(),
+      ),
+      _LayoutCase(
+        title: '我的固定头部滚动区',
+        subtitle: 'Column + Expanded：头部固定，内容滚动',
+        icon: Icons.vertical_align_top_outlined,
+        builder: (_) => const MyFixedHeaderScrollLayoutPage(),
+      ),
+      _LayoutCase(
+        title: '我的响应式布局',
+        subtitle: 'LayoutBuilder：窄屏单列，宽屏双列',
+        icon: Icons.devices_outlined,
+        builder: (_) => const MyResponsiveLayoutPage(),
+      ),
+      _LayoutCase(
+        title: '安全区布局',
+        subtitle: 'SafeArea：避开刘海、状态栏和手势区',
+        icon: Icons.phone_iphone_outlined,
+        builder: (_) => const MySafeAreaLayoutPage(),
+      ),
     ];
 
     return Scaffold(
@@ -130,6 +184,39 @@ class CenterColumnLayoutPage extends StatelessWidget {
   }
 }
 
+class MyCenterPracticePage extends StatelessWidget {
+  const MyCenterPracticePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return _CaseScaffold(
+      title: '基础居中布局',
+      description: 'description',
+      child: SizedBox(
+        height: 280,
+        child: ColoredBox(
+          color: Color(0xFFE8F5E9),
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.auto_awesome, size: 48),
+                Text("hi"),
+                FilledButton(
+                  onPressed: () {
+                    debugPrint('hello');
+                  },
+                  child: const Text('居中的操作按钮'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class RowColumnFlexLayoutPage extends StatelessWidget {
   const RowColumnFlexLayoutPage({super.key});
 
@@ -154,6 +241,89 @@ class RowColumnFlexLayoutPage extends StatelessWidget {
             actionText: '继续',
           ),
         ],
+      ),
+    );
+  }
+}
+
+class MyRowColumnFlexLayoutPage extends StatelessWidget {
+  const MyRowColumnFlexLayoutPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return _CaseScaffold(
+      title: '横向信息卡',
+      description: 'Row 管横向排列；Expanded 让中间文字吃掉剩余宽度，避免挤爆右侧按钮。',
+      child: Column(
+        children: [
+          Material(
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(8),
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: Row(
+                children: [
+                  Icon(Icons.image_outlined),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'hi this is title',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 4),
+                        Text('yeah this is desc'),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  OutlinedButton(
+                    onPressed: () => debugPrint('hi'),
+                    child: Text('action'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class MyExpandedFlexibleLayoutPage extends StatelessWidget {
+  const MyExpandedFlexibleLayoutPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const _CaseScaffold(
+      title: '比例分栏',
+      description: '三个 Expanded 使用不同 flex，父级剩余宽度会按 2:1:1 分给它们。',
+      child: SizedBox(
+        height: 160,
+        child: Row(
+          children: [
+            Expanded(
+              flex: 1,
+              child: _ColorPanel(
+                label: '主内容 flex: 1',
+                color: Color(0xFFB2DFDB),
+              ),
+            ),
+            SizedBox(width: 8),
+            Expanded(
+              flex: 2,
+              child: _ColorPanel(label: '侧栏 flex: 2', color: Color(0xFFFFECB3)),
+            ),
+            SizedBox(width: 8),
+            Expanded(
+              flex: 3,
+              child: _ColorPanel(label: '操作 flex: 3', color: Color(0xFFFFCDD2)),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -220,8 +390,56 @@ class CardListLayoutPage extends StatelessWidget {
   }
 }
 
+class MyCardListLayoutPage extends StatelessWidget {
+  const MyCardListLayoutPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return _CaseScaffold(
+      title: '卡片列表',
+      description: '列表页的核心是重复单元。先把单个 item 写清楚，再交给 ListView 重复。',
+      child: Column(
+        children: List.generate(
+          4,
+          (index) => Padding(
+            padding: EdgeInsets.only(bottom: index == 3 ? 0 : 12),
+            child: _TaskCard(
+              title: 'task ${index + 1}',
+              status: index.isEven ? 'doing' : 'done',
+              color: index.isEven
+                  ? const Color(0xFFE3F2FD)
+                  : const Color(0xFFE8F5E9),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class TwoColumnGridLayoutPage extends StatelessWidget {
   const TwoColumnGridLayoutPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return _CaseScaffold(
+      title: '两列网格',
+      description: 'GridView 适合图库和模板选择。这里用 shrinkWrap 让它嵌在教学页的滚动容器里。',
+      child: GridView.count(
+        crossAxisCount: 2,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+        childAspectRatio: 1.1,
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        children: List.generate(6, (index) => _GridTile(index: index)),
+      ),
+    );
+  }
+}
+
+class MyTwoColumnGridLayoutPage extends StatelessWidget {
+  const MyTwoColumnGridLayoutPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -276,6 +494,73 @@ class StackOverlayLayoutPage extends StatelessWidget {
   }
 }
 
+class MyStackOverlayLayoutPage extends StatelessWidget {
+  const MyStackOverlayLayoutPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return _CaseScaffold(
+      title: '图片遮罩叠层',
+      description: 'Stack 像图层系统，后写的 Widget 会压在先写的 Widget 上面。',
+      child: AspectRatio(
+        aspectRatio: 16 / 9,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFF4DB6AC), Color(0xFF3949AB)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+            ),
+            Positioned(
+              left: 16,
+              right: 16,
+              bottom: 16,
+              child: _MyOverlayCaption(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MyOverlayCaption extends StatelessWidget {
+  const _MyOverlayCaption({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.54),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: const Padding(
+        padding: EdgeInsets.all(6),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'works preview',
+              style: TextStyle(color: Colors.white, fontSize: 18),
+            ),
+            SizedBox(height: 4),
+            Text(
+              'title、tag、button can overflow the image',
+              style: TextStyle(color: Colors.white),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class FixedHeaderScrollLayoutPage extends StatelessWidget {
   const FixedHeaderScrollLayoutPage({super.key});
 
@@ -313,6 +598,43 @@ class FixedHeaderScrollLayoutPage extends StatelessWidget {
   }
 }
 
+class MyFixedHeaderScrollLayoutPage extends StatelessWidget {
+  const MyFixedHeaderScrollLayoutPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return _CaseScaffold(
+      title: '固定头部滚动区',
+      description: 'Column 放固定头部，Expanded 把剩余高度给内部 ListView。',
+      child: SizedBox(
+        height: 360,
+        child: Column(
+          children: [
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              color: const Color(0xFF263238),
+              child: const Text('固定筛选栏', style: TextStyle(color: Colors.white)),
+            ),
+            Expanded(
+              child: ListView.separated(
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text('滚动内容 ${index + 1}'),
+                    subtitle: const Text('头部不会跟着这块内部列表滚动'),
+                  );
+                },
+                separatorBuilder: (context, index) => const Divider(height: 1),
+                itemCount: 12,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class ResponsiveLayoutPage extends StatelessWidget {
   const ResponsiveLayoutPage({super.key});
 
@@ -321,6 +643,42 @@ class ResponsiveLayoutPage extends StatelessWidget {
     return _CaseScaffold(
       title: '响应式布局',
       description: 'LayoutBuilder 能拿到父组件给你的最大宽度，然后决定当前用哪一种布局。',
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isWide = constraints.maxWidth >= 520;
+          final preview = [
+            const _ResponsivePanel(title: '预览区', color: Color(0xFFE1F5FE)),
+            const _ResponsivePanel(title: '设置区', color: Color(0xFFF1F8E9)),
+          ];
+
+          if (isWide) {
+            return Row(
+              children: [
+                Expanded(child: preview[0]),
+                const SizedBox(width: 12),
+                Expanded(child: preview[1]),
+              ],
+            );
+          }
+
+          return Column(
+            children: [preview[0], const SizedBox(height: 12), preview[1]],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class MyResponsiveLayoutPage extends StatelessWidget {
+  const MyResponsiveLayoutPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return _CaseScaffold(
+      title: '响应式布局',
+      description: 'LayoutBuilder 能拿到父组件给你的最大宽度，然后决定当前用哪一种布局。',
+      // 在 build 的时候，拿到“父组件给我的尺寸约束”，然后根据这个约束决定怎么布局。
       child: LayoutBuilder(
         builder: (context, constraints) {
           final isWide = constraints.maxWidth >= 520;
@@ -374,6 +732,29 @@ class SafeAreaLayoutPage extends StatelessWidget {
   }
 }
 
+class MySafeAreaLayoutPage extends StatelessWidget {
+  const MySafeAreaLayoutPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const _CaseScaffold(
+      title: '安全区布局',
+      description: 'SafeArea 会根据设备边缘不可用区域自动加 padding，移动端页面很常用。',
+      child: SafeArea(
+          minimum: EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _PhoneBar(text: '顶部避开状态栏和刘海'),
+              SizedBox(height: 120),
+              _PhoneBar(text: '底部避开手势区'),
+            ],
+          ),
+      ),
+    );
+  }
+}
+
 class _LayoutIntro extends StatelessWidget {
   const _LayoutIntro();
 
@@ -410,7 +791,7 @@ class _CaseScaffold extends StatelessWidget {
       appBar: AppBar(title: Text(title)),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(8),
           children: [
             Text(description, style: Theme.of(context).textTheme.bodyLarge),
             const SizedBox(height: 20),
@@ -441,7 +822,7 @@ class _InfoRow extends StatelessWidget {
       color: Theme.of(context).colorScheme.surfaceContainerHighest,
       borderRadius: BorderRadius.circular(8),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(8),
         child: Row(
           children: [
             Icon(icon, size: 32),
@@ -547,7 +928,13 @@ class _OverlayCaption extends StatelessWidget {
       child: const Padding(
         padding: EdgeInsets.all(16),
         child: Column(
+          /**
+           * 交叉轴对齐方式
+           * Column 主轴：上下方向
+           * Column 交叉轴：左右方向
+           */
           crossAxisAlignment: CrossAxisAlignment.start,
+          // 垂直方向 高度只包住内容，不主动撑满父级高度
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
