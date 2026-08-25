@@ -530,7 +530,7 @@ class MyStackOverlayLayoutPage extends StatelessWidget {
 }
 
 class _MyOverlayCaption extends StatelessWidget {
-  const _MyOverlayCaption({super.key});
+  const _MyOverlayCaption();
 
   @override
   Widget build(BuildContext context) {
@@ -741,15 +741,15 @@ class MySafeAreaLayoutPage extends StatelessWidget {
       title: '安全区布局',
       description: 'SafeArea 会根据设备边缘不可用区域自动加 padding，移动端页面很常用。',
       child: SafeArea(
-          minimum: EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _PhoneBar(text: '顶部避开状态栏和刘海'),
-              SizedBox(height: 120),
-              _PhoneBar(text: '底部避开手势区'),
-            ],
-          ),
+        minimum: EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _PhoneBar(text: '顶部避开状态栏和刘海'),
+            SizedBox(height: 120),
+            _PhoneBar(text: '底部避开手势区'),
+          ],
+        ),
       ),
     );
   }

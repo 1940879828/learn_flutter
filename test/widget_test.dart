@@ -12,6 +12,7 @@ void main() {
     expect(find.text('Flutter 学习目录'), findsOneWidget);
     expect(find.text('03 Widget 生命周期'), findsOneWidget);
     expect(find.text('04 布局案例实验室'), findsOneWidget);
+    expect(find.text('05 状态管理与 Riverpod'), findsOneWidget);
   });
 
   testWidgets(
@@ -96,5 +97,33 @@ void main() {
       await tester.pageBack();
       await tester.pumpAndSettle();
     }
+  });
+
+  testWidgets('Riverpod lab filters and updates task state', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const MyApp());
+
+    await tester.tap(find.text('05 状态管理与 Riverpod'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('任务状态看板'), findsOneWidget);
+    expect(find.text('全部 3'), findsOneWidget);
+    expect(find.text('进行中 2'), findsOneWidget);
+    expect(find.text('已完成 1'), findsOneWidget);
+    expect(find.text('FutureProvider：模拟从远端加载任务配置'), findsOneWidget);
+
+    await tester.tap(find.text('新增任务'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('全部 4'), findsOneWidget);
+    expect(find.text('进行中 3'), findsOneWidget);
+    expect(find.textContaining('新建的 Riverpod 练习任务 004'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(FilterChip, '已完成'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('listen：筛选条件切换为「已完成」'), findsOneWidget);
+    expect(find.textContaining('生成一张魔法卡片封面'), findsOneWidget);
   });
 }

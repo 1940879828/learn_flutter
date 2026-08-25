@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'chapter_03/lifecycle_demo_page.dart';
 import 'chapter_04/layout_lab_page.dart';
+import 'chapter_05/state_management_lab_page.dart';
 
 class LearningHomePage extends StatelessWidget {
   const LearningHomePage({super.key});
@@ -20,6 +21,12 @@ class LearningHomePage extends StatelessWidget {
         subtitle: '像学 CSS 布局一样，逐个拆 Flutter 经典布局',
         icon: Icons.dashboard_customize_outlined,
         builder: (_) => const LayoutLabPage(),
+      ),
+      _LearningEntry(
+        title: '05 状态管理与 Riverpod',
+        subtitle: '练 watch、read、listen 和状态分层',
+        icon: Icons.hub_outlined,
+        builder: (_) => const StateManagementLabPage(),
       ),
     ];
 

@@ -14,7 +14,34 @@
 ## 练习文件
 
 - `notes/05-状态管理与Riverpod.md`
+- `lib/chapter_05/state_management_lab_page.dart`
 - 目标项目里的 `lib/app.dart` 和 `lib/pool/`
+
+## 本章练习页面
+
+项目首页现在有 `05 状态管理与 Riverpod` 入口。
+
+这个练习页模拟了 `flutter-spell-ai` 里常见的“生成任务列表”：
+
+- 任务列表状态：`spellTaskListProvider`
+- 筛选条件状态：`taskFilterProvider`
+- 异步远程提示：`remoteHintProvider`
+- 派生统计数据：`taskSummaryProvider`
+- 派生筛选列表：`filteredTasksProvider`
+
+学习时重点看三条线：
+
+1. `ref.watch(...)`：页面订阅状态，状态变了 UI 自动重建。
+2. `ref.read(...)`：按钮点击时读取 controller，然后触发状态更新。
+3. `ref.listen(...)`：状态变化时做副作用，比如弹出 SnackBar。
+
+你可以先运行页面，然后按这个顺序练：
+
+1. 点 `新增任务`，观察统计数字和列表变化。
+2. 点筛选 chip，观察列表过滤和 SnackBar。
+3. 点任务右侧的完成按钮，观察任务状态和统计数字变化。
+4. 点远程提示右侧刷新按钮，观察 `FutureProvider` 重新加载。
+5. 回到代码里找 `NotifierProvider`、`FutureProvider` 和 `Provider` 分别负责什么。
 
 ## 第 1 步：先分清状态类型
 
@@ -54,11 +81,18 @@ Riverpod 可以把它理解成：
 建议你做：
 
 - 一个 `FutureProvider` 模拟加载任务
-- 一个 `StateProvider` 控制筛选条件
+- 一个 `NotifierProvider` 控制筛选条件
 - 一个刷新按钮
 - 一个 loading / error / empty 状态展示
 
 重点不是界面，而是状态流转。
+
+当前项目里的 05 章练习已经实现了这个任务列表的最小版本。你后续可以继续扩展：
+
+- 增加 `error` 状态。
+- 增加异步加载状态。
+- 把新增任务从固定文案改成输入框。
+- 把 `SpellTaskStatus.running` 改成定时完成，练 `dispose` 和异步取消。
 
 ## 第 5 步：理解 ProviderScope
 
@@ -105,8 +139,8 @@ Riverpod 可以把它理解成：
 ### Q2：`FutureProvider` 适合什么？
 适合一次性异步数据，比如配置、列表加载、远程初始化。
 
-### Q3：`StateProvider` 适合什么？
-适合简单、轻量、局部可变状态，比如筛选条件、开关、单值输入。
+### Q3：简单筛选条件适合放哪里？
+旧版 Riverpod 常用 `StateProvider` 表达筛选条件、开关、单值输入。当前项目接入的是 Riverpod 3，所以练习代码用 `NotifierProvider` 表达同类状态。
 
 ### Q4：为什么 `Notifier` 更适合业务逻辑？
 因为它把状态修改集中起来了，测试和维护都更稳。

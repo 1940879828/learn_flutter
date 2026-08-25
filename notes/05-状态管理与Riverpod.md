@@ -17,10 +17,10 @@
 
 - `ProviderScope`
 - `Provider`
-- `StateProvider`
 - `FutureProvider`
 - `StreamProvider`
 - `Notifier` / `AsyncNotifier`
+- `NotifierProvider`
 - `ref.watch`、`ref.read`、`ref.listen`
 - provider dispose 和缓存
 - provider 命名、调试日志
@@ -30,7 +30,7 @@
 做一个任务列表：
 
 - `FutureProvider` 模拟拉取任务列表。
-- `StateProvider` 控制筛选条件。
+- `NotifierProvider` 控制筛选条件和任务列表。
 - 一个按钮触发刷新。
 - 加载、错误、空状态都要展示。
 
@@ -67,7 +67,7 @@
 它定义了 provider 的作用域边界，限定了依赖注入和状态生命周期。复杂页面常用嵌套 scope 控制状态隔离。
 
 ### Q4：为什么会用 `StateNotifier/AsyncNotifier`？
-适合将状态更新逻辑集中在一个可测试、可组合的类中，避免在 widget 里堆积副作用和状态切片。
+适合将状态更新逻辑集中在一个可测试、可组合的类中，避免在 widget 里堆积副作用和状态切片。Riverpod 3 中更推荐先看 `Notifier` / `AsyncNotifier` 这条线。
 
 ### Q5：Rivers/ Riverpod 怎么做异步数据？
 `AsyncValue` 配合 `FutureProvider`/`AsyncNotifier` 表达 loading/error/data 三态，天然适配 UI 的异步反馈。
