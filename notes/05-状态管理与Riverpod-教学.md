@@ -15,13 +15,32 @@
 
 - `notes/05-状态管理与Riverpod.md`
 - `lib/chapter_05/state_management_lab_page.dart`
+- `lib/chapter_05/set_state_example_page.dart`
+- `lib/chapter_05/notifier_provider_example_page.dart`
+- `lib/chapter_05/provider_example_page.dart`
+- `lib/chapter_05/future_provider_example_page.dart`
+- `lib/chapter_05/async_notifier_repository_example_page.dart`
+- `lib/chapter_05/comprehensive_task_board_page.dart`
+- `lib/chapter_05/task_models.dart`
+- `lib/chapter_05/task_repository.dart`
 - 目标项目里的 `lib/app.dart` 和 `lib/pool/`
 
 ## 本章练习页面
 
 项目首页现在有 `05 状态管理与 Riverpod` 入口。
 
-这个练习页模拟了 `flutter-spell-ai` 里常见的“生成任务列表”：
+入口页下面拆成 6 个案例，建议按顺序看：
+
+1. `01 StatefulWidget + setState`：只学本地状态。
+2. `02 NotifierProvider`：把状态修改逻辑从 Widget 挪到 controller。
+3. `03 Provider 派生数据`：用 `Provider` 从已有状态计算统计、筛选和展示文案。
+4. `04 FutureProvider`：用一次性异步请求理解 `AsyncValue.when`。
+5. `05 AsyncNotifier + repository`：用 repository 管数据来源，用 `AsyncNotifier` 管 loading、error、data。
+6. `06 综合任务看板`：最后看多个 provider 如何组合。
+
+当前 repository 是 `FakeSpellTaskRepository`，没有打真实接口。它故意用 `Future.delayed` 和可控错误模拟真实接口，因为本章重点是状态流转，不是 HTTP。真实网络请求会在第 07 章展开。
+
+最后的综合任务看板模拟了 `flutter-spell-ai` 里常见的“生成任务列表”：
 
 - 任务列表状态：`spellTaskListProvider`
 - 筛选条件状态：`taskFilterProvider`
@@ -37,11 +56,12 @@
 
 你可以先运行页面，然后按这个顺序练：
 
-1. 点 `新增任务`，观察统计数字和列表变化。
-2. 点筛选 chip，观察列表过滤和 SnackBar。
-3. 点任务右侧的完成按钮，观察任务状态和统计数字变化。
-4. 点远程提示右侧刷新按钮，观察 `FutureProvider` 重新加载。
-5. 回到代码里找 `NotifierProvider`、`FutureProvider` 和 `Provider` 分别负责什么。
+1. 先点 `01 StatefulWidget + setState`，确认不用 Riverpod 也能管理局部状态。
+2. 再点 `02 NotifierProvider`，观察 Widget 如何用 `read` 调 controller。
+3. 再点 `03 Provider 派生数据`，观察统计文案不是手写状态，而是从任务列表算出来。
+4. 再点 `04 FutureProvider`，观察 loading/data 切换和刷新。
+5. 再点 `05 AsyncNotifier + repository`，点错误按钮，看 error 状态如何进入 UI。
+6. 最后点 `06 综合任务看板`，观察 `watch/read/listen` 同时出现时怎么分工。
 
 ## 第 1 步：先分清状态类型
 

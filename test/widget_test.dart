@@ -107,6 +107,17 @@ void main() {
     await tester.tap(find.text('05 状态管理与 Riverpod'));
     await tester.pumpAndSettle();
 
+    expect(find.text('状态管理练习顺序'), findsOneWidget);
+    expect(find.text('01 StatefulWidget + setState'), findsOneWidget);
+    expect(find.text('02 NotifierProvider'), findsOneWidget);
+    expect(find.text('03 Provider 派生数据'), findsOneWidget);
+    expect(find.text('04 FutureProvider'), findsOneWidget);
+    expect(find.text('05 AsyncNotifier + repository'), findsOneWidget);
+    expect(find.text('06 综合任务看板'), findsOneWidget);
+
+    await tester.tap(find.text('06 综合任务看板'));
+    await tester.pumpAndSettle();
+
     expect(find.text('任务状态看板'), findsOneWidget);
     expect(find.text('全部 3'), findsOneWidget);
     expect(find.text('进行中 2'), findsOneWidget);
@@ -125,5 +136,63 @@ void main() {
 
     expect(find.text('listen：筛选条件切换为「已完成」'), findsOneWidget);
     expect(find.textContaining('生成一张魔法卡片封面'), findsOneWidget);
+  });
+
+  testWidgets('State management single examples can be opened', (
+    WidgetTester tester,
+  ) async {
+    const exampleTitles = [
+      '01 StatefulWidget + setState',
+      '02 NotifierProvider',
+      '03 Provider 派生数据',
+      '04 FutureProvider',
+      '05 AsyncNotifier + repository',
+    ];
+
+    await tester.pumpWidget(const MyApp());
+    await tester.tap(find.text('05 状态管理与 Riverpod'));
+    await tester.pumpAndSettle();
+
+    for (final title in exampleTitles) {
+      await tester.tap(find.text(title));
+      await tester.pumpAndSettle();
+
+      expect(find.text(title), findsOneWidget);
+      expect(tester.takeException(), isNull);
+
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+    }
+  });
+
+  testWidgets('setState and AsyncNotifier repository examples handle actions', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const MyApp());
+    await tester.tap(find.text('05 状态管理与 Riverpod'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('01 StatefulWidget + setState'));
+    await tester.pumpAndSettle();
+    expect(find.text('本地点击次数：0'), findsOneWidget);
+
+    await tester.tap(find.text('setState 加一'));
+    await tester.pump();
+    expect(find.text('本地点击次数：1'), findsOneWidget);
+
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('05 AsyncNotifier + repository'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('repository 第'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('模拟错误'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('模拟接口失败'), findsOneWidget);
+
+    await tester.tap(find.text('从 repository 重新加载'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('repository 第'), findsOneWidget);
   });
 }
