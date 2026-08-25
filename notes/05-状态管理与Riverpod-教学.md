@@ -14,13 +14,13 @@
 ## 练习文件
 
 - `notes/05-状态管理与Riverpod.md`
-- `lib/chapter_05/state_management_lab_page.dart`
-- `lib/chapter_05/set_state_example_page.dart`
-- `lib/chapter_05/notifier_provider_example_page.dart`
-- `lib/chapter_05/provider_example_page.dart`
-- `lib/chapter_05/future_provider_example_page.dart`
-- `lib/chapter_05/async_notifier_repository_example_page.dart`
-- `lib/chapter_05/comprehensive_task_board_page.dart`
+- `lib/chapter_05/case_00_state_management_lab_page.dart`
+- `lib/chapter_05/case_01_set_state_example_page.dart`
+- `lib/chapter_05/case_02_notifier_provider_example_page.dart`
+- `lib/chapter_05/case_03_provider_example_page.dart`
+- `lib/chapter_05/case_04_future_provider_example_page.dart`
+- `lib/chapter_05/case_05_async_notifier_repository_example_page.dart`
+- `lib/chapter_05/case_06_comprehensive_task_board_page.dart`
 - `lib/chapter_05/task_models.dart`
 - `lib/chapter_05/task_repository.dart`
 - 目标项目里的 `lib/app.dart` 和 `lib/pool/`

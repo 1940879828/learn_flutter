@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-import 'async_notifier_repository_example_page.dart';
-import 'comprehensive_task_board_page.dart';
-import 'future_provider_example_page.dart';
-import 'notifier_provider_example_page.dart';
-import 'provider_example_page.dart';
-import 'set_state_example_page.dart';
+import 'case_01_set_state_example_page.dart';
+import 'case_02_notifier_provider_example_page.dart';
+import 'case_03_provider_example_page.dart';
+import 'case_04_future_provider_example_page.dart';
+import 'case_05_async_notifier_repository_example_page.dart';
+import 'case_06_comprehensive_task_board_page.dart';
 
 class StateManagementLabPage extends StatelessWidget {
   const StateManagementLabPage({super.key});

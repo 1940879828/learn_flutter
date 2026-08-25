@@ -36,12 +36,13 @@
 
 当前代码练习拆成多个独立页面：
 
-- `set_state_example_page.dart`：先看 `StatefulWidget + setState`。
-- `notifier_provider_example_page.dart`：再看 `NotifierProvider` 如何收口状态修改。
-- `provider_example_page.dart`：再看 `Provider` 如何做派生数据。
-- `future_provider_example_page.dart`：再看 `FutureProvider` 如何处理一次性异步请求。
-- `async_notifier_repository_example_page.dart`：再看 `AsyncNotifier + repository` 如何管理 loading、error、data。
-- `comprehensive_task_board_page.dart`：最后看综合任务看板。
+- `case_00_state_management_lab_page.dart`：05 章案例目录页。
+- `case_01_set_state_example_page.dart`：对应 `01 StatefulWidget + setState`。
+- `case_02_notifier_provider_example_page.dart`：对应 `02 NotifierProvider`。
+- `case_03_provider_example_page.dart`：对应 `03 Provider 派生数据`。
+- `case_04_future_provider_example_page.dart`：对应 `04 FutureProvider`。
+- `case_05_async_notifier_repository_example_page.dart`：对应 `05 AsyncNotifier + repository`。
+- `case_06_comprehensive_task_board_page.dart`：对应 `06 综合任务看板`。
 
 ## 目标项目观察
 

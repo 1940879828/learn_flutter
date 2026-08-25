@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'chapter_03/lifecycle_demo_page.dart';
 import 'chapter_04/layout_lab_page.dart';
-import 'chapter_05/state_management_lab_page.dart';
+import 'chapter_05/case_00_state_management_lab_page.dart';
 
 class LearningHomePage extends StatelessWidget {
   const LearningHomePage({super.key});
