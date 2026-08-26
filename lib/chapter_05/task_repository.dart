@@ -15,7 +15,7 @@ class FakeSpellTaskRepository implements SpellTaskRepository {
 
   @override
   Future<List<SpellTaskItem>> fetchTasks({bool shouldFail = false}) async {
-    await Future<void>.delayed(const Duration(milliseconds: 180));
+    await Future<void>.delayed(const Duration(milliseconds: 3000));
 
     if (shouldFail) {
       throw Exception('模拟接口失败：服务器暂时不可用');

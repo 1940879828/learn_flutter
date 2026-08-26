@@ -6,6 +6,7 @@ import 'case_03_provider_example_page.dart';
 import 'case_04_future_provider_example_page.dart';
 import 'case_05_async_notifier_repository_example_page.dart';
 import 'case_06_comprehensive_task_board_page.dart';
+import 'case_07_practice_demo.dart';
 
 class StateManagementLabPage extends StatelessWidget {
   const StateManagementLabPage({super.key});
@@ -27,7 +28,7 @@ class StateManagementLabPage extends StatelessWidget {
       ),
       _StateExampleEntry(
         title: '03 Provider 派生数据',
-        subtitle: '从任务列表派生统计、筛选结果和文案',
+        subtitle: 'Provider watch 另一个 provider，派生筛选后的列表',
         icon: Icons.account_tree_outlined,
         builder: (_) => const ProviderExamplePage(),
       ),
@@ -45,9 +46,15 @@ class StateManagementLabPage extends StatelessWidget {
       ),
       _StateExampleEntry(
         title: '06 综合任务看板',
-        subtitle: '把 watch、read、listen 和多个 provider 组合起来',
+        subtitle: '把 watch、read、listen 和派生 provider 组合起来',
         icon: Icons.dashboard_outlined,
         builder: (_) => const ComprehensiveTaskBoardPage(),
+      ),
+      _StateExampleEntry(
+        title: '07 综合练习',
+        subtitle: '手写一遍',
+        icon: Icons.dashboard_outlined,
+        builder: (_) => const Case07PracticeDemo(),
       ),
     ];
 

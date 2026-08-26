@@ -5,6 +5,8 @@ class LayoutLabPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 这一组 _LayoutCase 是本章的“案例目录”。
+    // 每一项只描述入口信息和目标页面，真正的布局实现放在各自的 Page 里。
     final cases = <_LayoutCase>[
       _LayoutCase(
         title: '基础居中布局',
@@ -121,6 +123,7 @@ class LayoutLabPage extends StatelessWidget {
       body: SafeArea(
         child: ListView.separated(
           padding: const EdgeInsets.all(16),
+          // 额外 +1 是为了把章节说明 _LayoutIntro 放在列表第一项。
           itemCount: cases.length + 1,
           separatorBuilder: (context, index) => const SizedBox(height: 12),
           itemBuilder: (context, index) {
@@ -128,6 +131,7 @@ class LayoutLabPage extends StatelessWidget {
               return const _LayoutIntro();
             }
 
+            // 因为 index 0 留给了介绍卡片，所以真正的案例索引要减 1。
             final layoutCase = cases[index - 1];
             return Material(
               color: Theme.of(context).colorScheme.surfaceContainerHighest,
@@ -141,6 +145,7 @@ class LayoutLabPage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 onTap: () {
+                  // push 会把目标案例页面压入导航栈；系统返回键会回到这个目录页。
                   Navigator.of(
                     context,
                   ).push(MaterialPageRoute<void>(builder: layoutCase.builder));

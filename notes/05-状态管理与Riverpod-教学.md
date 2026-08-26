@@ -86,6 +86,89 @@ Riverpod 可以把它理解成：
 
 它最重要的不是 API 名字，而是“依赖声明”这件事。
 
+## Provider 类型对比和使用场景
+
+Riverpod 里的 provider 不是一种东西，而是一组“状态容器 / 依赖声明方式”。
+
+你可以先用这张表建立判断：
+
+| 类型 | UI 读到什么 | 主要解决什么问题 | 适合场景 | 不适合场景 |
+| --- | --- | --- | --- | --- |
+| `Provider<T>` | 普通的 `T` | 声明一个同步依赖，或者从其他 provider 派生一个同步结果 | repository 注入、api client 注入、从任务列表计算统计文案、过滤后的列表 | 自己内部需要修改状态、需要 loading/error/data |
+| `FutureProvider<T>` | `AsyncValue<T>` | 声明一个一次性异步读取 | 页面初始化加载、远程配置、详情页 GET 请求、简单列表请求 | 需要很多操作方法，比如新增、删除、重试、分页、提交表单 |
+| `NotifierProvider<Notifier, State>` | 普通的 `State` | 管理同步可变状态，并把修改逻辑收口到 controller | 筛选条件、tab 选择、表单草稿、本地任务列表、本地计数器 | 远程请求状态，尤其是 loading/error/data 很多的场景 |
+| `AsyncNotifierProvider<Notifier, State>` | `AsyncValue<State>` | 管理异步状态，并把加载、刷新、提交、错误处理收口到 controller | 远程任务列表、生成任务状态、带 repository 的业务模块、需要刷新和错误重试的页面 | 只是一个简单开关、简单筛选条件、纯同步派生值 |
+| `StreamProvider<T>` | `AsyncValue<T>` | 订阅一条持续变化的数据流 | 登录状态流、实时消息、WebSocket、数据库 watch、下载进度流 | 普通一次性请求 |
+
+### 和你说的 custom provider 有什么区别？
+
+如果你说的 `custom provider` 是“自己写一个 provider，把 repository 或 controller 暴露出去”，那它本质上更像 `Provider<T>` 或 `NotifierProvider`：
+
+```dart
+final repositoryProvider = Provider<SpellTaskRepository>((ref) {
+  return FakeSpellTaskRepository();
+});
+```
+
+这种写法只是在声明“谁提供这个对象”，它自己不自动帮你处理异步的 `loading/error/data`。
+
+而 `FutureProvider` 这段：
+
+```dart
+final futureTasksProvider = FutureProvider<List<SpellTaskItem>>((ref) {
+  final repository = ref.watch(spellTaskRepositoryProvider);
+  return repository.fetchTasks();
+});
+```
+
+表达的是“这个 provider 的值来自一个 Future”。所以 UI 读到的不是 `List<SpellTaskItem>`，而是 `AsyncValue<List<SpellTaskItem>>`。这就是为什么页面里可以写：
+
+```dart
+tasksAsync.when(
+  loading: () => const CircularProgressIndicator(),
+  error: (error, stackTrace) => Text('$error'),
+  data: (tasks) => Text('任务数量：${tasks.length}'),
+);
+```
+
+换句话说：
+
+- `Provider<Repository>`：提供数据源。
+- `FutureProvider<List<Task>>`：调用数据源，并把异步过程包装成 UI 能消费的状态。
+- `AsyncNotifierProvider<TaskController, List<Task>>`：不只加载数据，还集中管理刷新、重试、新增、删除、提交等操作。
+
+### 选择口诀
+
+先不要背 API，先按问题选：
+
+- 只是提供一个对象：用 `Provider`。
+- 只是从已有状态算一个结果：用 `Provider`。
+- 只是做一次异步读取：用 `FutureProvider`。
+- 有同步状态，还要暴露操作方法：用 `NotifierProvider`。
+- 有远程数据，还要管理 loading、error、刷新、提交：用 `AsyncNotifierProvider`。
+- 数据会持续推送变化：用 `StreamProvider`。
+
+### 用 Web 前端类比
+
+可以粗略这样迁移理解：
+
+- `Provider<ApiClient>` 像在 React Context 里提供一个 `apiClient`。
+- `Provider<Summary>` 像 `useMemo`，从已有数据派生一个结果。
+- `FutureProvider` 像一个最小版 `useQuery`，负责请求和 loading/error/data。
+- `NotifierProvider` 像 Zustand / Redux slice，状态和 action 放在一起。
+- `AsyncNotifierProvider` 像 `useQuery + mutation/actions` 的组合，适合业务模块收口。
+
+不过 Riverpod 和 React 最大的不同是：provider 不挂在组件函数里，而是声明在组件外面。Widget 通过 `ref.watch` 订阅它，通过 `ref.read` 调用它。
+
+### 对应本章案例
+
+- `01 StatefulWidget + setState`：先理解不用 Riverpod 时，状态怎么放在页面本地。
+- `02 NotifierProvider`：学习同步状态和 action 怎么从 Widget 移出去。
+- `03 Provider 派生数据`：学习 `Provider` 如何做同步派生值。
+- `04 FutureProvider`：学习一次性异步请求和 `AsyncValue.when`。
+- `05 AsyncNotifier + repository`：学习远程数据、repository、loading、error、data 的完整收口。
+- `06 综合任务看板`：学习多个 provider 组合时怎么分层。
+
 ## 第 3 步：先会 watch / read / listen
 
 你只要先记住：

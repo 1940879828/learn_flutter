@@ -8,15 +8,18 @@ class SetStateExamplePage extends StatefulWidget {
 }
 
 class _SetStateExamplePageState extends State<SetStateExamplePage> {
+  // 状态的定义
   int _count = 0;
   bool _highlight = false;
 
+  // setter
   void _increment() {
     setState(() {
       _count++;
     });
   }
 
+  // setter
   void _toggleHighlight() {
     setState(() {
       _highlight = !_highlight;

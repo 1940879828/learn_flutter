@@ -44,6 +44,8 @@
 - `case_05_async_notifier_repository_example_page.dart`：对应 `05 AsyncNotifier + repository`。
 - `case_06_comprehensive_task_board_page.dart`：对应 `06 综合任务看板`。
 
+如果单点概念还会混，先走闯关式练习：`05-状态管理与Riverpod-闯关练习.md`。它把综合案例拆成 6 关，每关只新增一个状态管理判断点。
+
 ## 目标项目观察
 
 优先阅读：

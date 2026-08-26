@@ -3,38 +3,43 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'task_models.dart';
 
+// 筛选条件是一个很小的全局状态：all / active / done。
+// 用 NotifierProvider 是为了让 UI 通过 controller 暴露的 setFilter 修改它。
 final taskFilterProvider =
     NotifierProvider<TaskFilterController, SpellTaskFilter>(
       TaskFilterController.new,
     );
 
 class TaskFilterController extends Notifier<SpellTaskFilter> {
+  // build() 返回 provider 的初始状态；这里默认展示全部任务。
   @override
   SpellTaskFilter build() {
     return SpellTaskFilter.all;
   }
 
   void setFilter(SpellTaskFilter filter) {
+    // 改 state 后，watch taskFilterProvider 的 Widget 和派生 provider 都会重新计算。
     state = filter;
   }
 }
 
+// Provider 可以只做“派生数据”，不自己持有可变状态。
+// summary 依赖任务列表；任务列表变化时，统计结果自动重新计算。
 final taskSummaryProvider = Provider<TaskSummary>((ref) {
   final tasks = ref.watch(spellTaskListProvider);
   return summarizeTasks(tasks);
 });
 
-final remoteHintProvider = FutureProvider<String>((ref) async {
-  await Future<void>.delayed(const Duration(milliseconds: 120));
-  return 'FutureProvider：模拟从远端加载任务配置';
-});
-
+// filteredTasks 同时依赖筛选条件和任务列表。
+// 任一输入变化，当前可见任务都会自动重新计算。
 final filteredTasksProvider = Provider<List<SpellTaskItem>>((ref) {
   final filter = ref.watch(taskFilterProvider);
   final tasks = ref.watch(spellTaskListProvider);
   return filterTasks(tasks, filter);
 });
 
+// 任务列表是真正会被用户动作修改的主状态。
+// 页面新增任务、标记完成，都应该进入这个 controller，而不是散落在 Widget 里。
 final spellTaskListProvider =
     NotifierProvider<SpellTaskListController, List<SpellTaskItem>>(
       SpellTaskListController.new,
@@ -43,6 +48,7 @@ final spellTaskListProvider =
 class SpellTaskListController extends Notifier<List<SpellTaskItem>> {
   int _nextId = 4;
 
+  // 初始任务来自 task_models.dart，方便把数据模型和状态管理示例分开看。
   @override
   List<SpellTaskItem> build() {
     return initialSpellTasks;
@@ -52,6 +58,8 @@ class SpellTaskListController extends Notifier<List<SpellTaskItem>> {
     final id = _nextId.toString().padLeft(3, '0');
     _nextId++;
 
+    // 新任务放在列表最前面，同时返回一个全新的 List。
+    // 这和前端里 setState([...newItem, ...oldItems]) 的心智模型很接近。
     state = [
       SpellTaskItem(
         id: 'task_$id',
@@ -63,6 +71,7 @@ class SpellTaskListController extends Notifier<List<SpellTaskItem>> {
   }
 
   void markDone(String id) {
+    // 用 copyWith 更新目标任务，保持 SpellTaskItem 本身不可变。
     state = [
       for (final task in state)
         if (task.id == id)
@@ -86,6 +95,8 @@ class _ComprehensiveTaskBoardPageState
     extends ConsumerState<ComprehensiveTaskBoardPage> {
   @override
   Widget build(BuildContext context) {
+    // listen 用来处理“状态变化带来的副作用”，比如弹 SnackBar、打点、导航。
+    // 它不会像 watch 一样把返回值拿来渲染 UI。
     ref.listen<SpellTaskFilter>(taskFilterProvider, (previous, next) {
       if (previous == null || previous == next) {
         return;
@@ -99,6 +110,8 @@ class _ComprehensiveTaskBoardPageState
       );
     });
 
+    // watch 用来读取会参与 UI 渲染的数据。
+    // 这里分别订阅统计、当前筛选条件、筛选后的任务列表。
     final summary = ref.watch(taskSummaryProvider);
     final currentFilter = ref.watch(taskFilterProvider);
     final tasks = ref.watch(filteredTasksProvider);
@@ -111,8 +124,6 @@ class _ComprehensiveTaskBoardPageState
           children: [
             _StateIntro(summary: summary),
             const SizedBox(height: 16),
-            const _RemoteHintCard(),
-            const SizedBox(height: 16),
             _FilterBar(currentFilter: currentFilter),
             const SizedBox(height: 16),
             _TaskList(tasks: tasks),
@@ -121,6 +132,7 @@ class _ComprehensiveTaskBoardPageState
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
+          // 按钮事件只触发动作，不需要因为读取 controller 而重建，所以用 read。
           ref.read(spellTaskListProvider.notifier).addDemoTask();
         },
         icon: const Icon(Icons.add),
@@ -168,43 +180,6 @@ class _StateIntro extends StatelessWidget {
   }
 }
 
-class _RemoteHintCard extends ConsumerWidget {
-  const _RemoteHintCard();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final hint = ref.watch(remoteHintProvider);
-
-    return Material(
-      color: const Color(0xFFE3F2FD),
-      borderRadius: BorderRadius.circular(8),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            const Icon(Icons.cloud_download_outlined),
-            const SizedBox(width: 12),
-            Expanded(
-              child: hint.when(
-                data: Text.new,
-                error: (error, stackTrace) => Text('远程提示加载失败：$error'),
-                loading: () => const Text('FutureProvider：加载中...'),
-              ),
-            ),
-            IconButton(
-              tooltip: '刷新远程提示',
-              onPressed: () {
-                ref.invalidate(remoteHintProvider);
-              },
-              icon: const Icon(Icons.refresh),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class _SummaryChip extends StatelessWidget {
   const _SummaryChip({required this.label, required this.count});
 
@@ -232,6 +207,8 @@ class _FilterBar extends ConsumerWidget {
             label: Text(filter.label),
             selected: currentFilter == filter,
             onSelected: (_) {
+              // FilterChip 只告诉 controller 用户选了哪个 filter。
+              // 真正的筛选列表由 filteredTasksProvider 自动派生。
               ref.read(taskFilterProvider.notifier).setFilter(filter);
             },
           ),
@@ -291,6 +268,7 @@ class _TaskTile extends ConsumerWidget {
                 tooltip: '标记完成',
                 icon: const Icon(Icons.done),
                 onPressed: () {
+                  // 行组件只提交 task.id；列表如何更新由 Notifier 统一决定。
                   ref.read(spellTaskListProvider.notifier).markDone(task.id);
                 },
               ),
