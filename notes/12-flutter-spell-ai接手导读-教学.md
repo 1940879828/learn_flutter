@@ -1,4 +1,4 @@
-# 11 flutter-spell-ai 接手导读 - 教学正文
+# 12 flutter-spell-ai 接手导读 - 教学正文
 
 这一章不是“学 Flutter”的内容，而是“把 Flutter 能力接回真实项目”的操作说明。
 
@@ -15,7 +15,7 @@
 
 ## 练习文件
 
-- `notes/11-flutter-spell-ai接手导读.md`
+- `notes/12-flutter-spell-ai接手导读.md`
 - `/Users/dev/Documents/Projects/flutter-spell-ai`
 
 ## 第 1 步：先只读不改

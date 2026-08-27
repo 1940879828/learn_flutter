@@ -13,6 +13,8 @@ void main() {
     expect(find.text('03 Widget 生命周期'), findsOneWidget);
     expect(find.text('04 布局案例实验室'), findsOneWidget);
     expect(find.text('05 状态管理与 Riverpod'), findsOneWidget);
+    expect(find.text('06 转场动画实验室'), findsOneWidget);
+    expect(find.text('07 路由导航与页面组织'), findsOneWidget);
   });
 
   testWidgets(
@@ -94,7 +96,7 @@ void main() {
       expect(find.text(title), findsOneWidget);
       expect(tester.takeException(), isNull);
 
-      await tester.pageBack();
+      tester.state<NavigatorState>(find.byType(Navigator)).pop();
       await tester.pumpAndSettle();
     }
   });
@@ -122,7 +124,10 @@ void main() {
     expect(find.text('全部 3'), findsOneWidget);
     expect(find.text('进行中 2'), findsOneWidget);
     expect(find.text('已完成 1'), findsOneWidget);
-    expect(find.text('FutureProvider：模拟从远端加载任务配置'), findsOneWidget);
+    expect(
+      find.text('watch：页面订阅任务列表和筛选条件；read：按钮点击时修改状态；listen：筛选变化时弹 SnackBar。'),
+      findsOneWidget,
+    );
 
     await tester.tap(find.text('新增任务'));
     await tester.pumpAndSettle();
@@ -160,7 +165,7 @@ void main() {
       expect(find.text(title), findsOneWidget);
       expect(tester.takeException(), isNull);
 
-      await tester.pageBack();
+      tester.state<NavigatorState>(find.byType(Navigator)).pop();
       await tester.pumpAndSettle();
     }
   });
@@ -180,7 +185,7 @@ void main() {
     await tester.pump();
     expect(find.text('本地点击次数：1'), findsOneWidget);
 
-    await tester.pageBack();
+    await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('05 AsyncNotifier + repository'));
@@ -194,5 +199,163 @@ void main() {
     await tester.tap(find.text('从 repository 重新加载'));
     await tester.pumpAndSettle();
     expect(find.textContaining('repository 第'), findsOneWidget);
+  });
+
+  testWidgets('Transition lab opens every transition demo', (
+    WidgetTester tester,
+  ) async {
+    const demoTitles = [
+      'SlideTransition',
+      'FadeTransition',
+      'ScaleTransition',
+      'RotationTransition',
+      'SizeTransition',
+      'Container Transform',
+      'Hero Header',
+      'Hero + Staggered',
+      'Collapsing Header',
+      'Parallax Header',
+      'Shared Axis Z',
+      'Fade Through',
+      'AnimatedContainer',
+      'Hero',
+    ];
+
+    await tester.pumpWidget(const MyApp());
+    await tester.tap(find.text('06 转场动画实验室'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('PageRouteBuilder 转场'), findsOneWidget);
+
+    for (final title in demoTitles) {
+      final titleFinder = find.text(title).first;
+
+      await tester.ensureVisible(titleFinder);
+      await tester.tap(titleFinder);
+      await tester.pumpAndSettle();
+
+      expect(find.text(title), findsWidgets);
+      expect(tester.takeException(), isNull);
+
+      tester.state<NavigatorState>(find.byType(Navigator)).pop();
+      await tester.pumpAndSettle();
+    }
+  });
+
+  testWidgets('Route lab opens and redirects protected detail to login', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const MyApp());
+
+    await tester.tap(find.text('07 路由导航与页面组织'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('07 路由导航实验室'), findsOneWidget);
+    expect(find.text('go_router 多页面练习'), findsOneWidget);
+    expect(find.text('读取 path 参数'), findsOneWidget);
+    expect(find.text('Android 预测返回'), findsNothing);
+    expect(find.textContaining('未登录，详情页会被 redirect'), findsOneWidget);
+
+    await tester.tap(find.text('读取 path 参数'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('模拟登录页'), findsOneWidget);
+    expect(find.text('redirect 练习'), findsOneWidget);
+
+    await tester.tap(find.text('模拟登录并返回原页面'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('路由详情页'), findsOneWidget);
+    expect(find.text('详情：task-101'), findsOneWidget);
+    expect(find.text('path 参数 taskId'), findsOneWidget);
+    expect(find.text('task-101'), findsWidgets);
+    expect(find.text('query 参数 tab'), findsOneWidget);
+    expect(find.text('notes'), findsOneWidget);
+    expect(find.text('extra 是否存在'), findsOneWidget);
+    expect(find.text('否'), findsOneWidget);
+
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+
+    expect(find.text('07 路由导航实验室'), findsOneWidget);
+
+    await tester.tap(find.text('读取 path 参数'));
+    await tester.pumpAndSettle();
+    expect(find.text('路由详情页'), findsOneWidget);
+
+    await tester.tap(find.text('回到路由实验室'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('07 路由导航实验室'), findsOneWidget);
+  });
+
+  testWidgets('Route lab passes extra when already logged in', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const MyApp());
+
+    await tester.tap(find.text('07 路由导航与页面组织'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('模拟登录'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('区分 query 和 extra'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('详情：task-102'), findsOneWidget);
+    expect(find.text('query 参数 tab'), findsOneWidget);
+    expect(find.text('notes'), findsOneWidget);
+    expect(find.text('extra 是否存在'), findsOneWidget);
+    expect(find.text('是'), findsOneWidget);
+    expect(find.text('区分 query 和 extra'), findsOneWidget);
+  });
+
+  testWidgets('Route lab receives create page result', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const MyApp());
+
+    await tester.tap(find.text('07 路由导航与页面组织'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('打开创建页'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('创建路由任务'), findsOneWidget);
+    expect(find.text('返回值练习'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField).first, '从测试返回的新任务');
+    await tester.enterText(find.byType(TextField).last, '测试 pop(result) 的返回值');
+    await tester.tap(find.text('创建并返回列表'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('07 路由导航实验室'), findsOneWidget);
+    expect(find.text('从测试返回的新任务'), findsOneWidget);
+    expect(find.textContaining('已从创建页接收返回值：从测试返回的新任务'), findsOneWidget);
+  });
+
+  testWidgets('Route search page reads and updates query parameters', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const MyApp());
+
+    await tester.tap(find.text('07 路由导航与页面组织'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('用 query 搜索'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('query 参数搜索页'), findsOneWidget);
+    expect(find.text('当前 query：riverpod'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField), 'go_router');
+    await tester.tap(find.text('更新 query'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('当前 query：go_router'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('回到学习首页'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Flutter 学习目录'), findsOneWidget);
   });
 }

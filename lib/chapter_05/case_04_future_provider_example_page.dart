@@ -13,16 +13,12 @@ final futureTasksProvider = FutureProvider<List<SpellTaskItem>>((ref) {
   return repository.fetchTasks();
 });
 
-/**
- * 整个 Widget 都要用 ref，且不需要本地 state
-    => ConsumerWidget
-
-    整个 Widget 都要用 ref，且还需要本地 state / 生命周期
-    => ConsumerStatefulWidget
-
-    只有局部一小块需要用 ref
-    => Consumer
- */
+/// 整个 Widget 都要用 ref，且不需要本地 state：`ConsumerWidget`。
+///
+/// 整个 Widget 都要用 ref，且还需要本地 state / 生命周期：
+/// `ConsumerStatefulWidget`。
+///
+/// 只有局部一小块需要用 ref：`Consumer`。
 class FutureProviderExamplePage extends ConsumerWidget {
   const FutureProviderExamplePage({super.key});
 

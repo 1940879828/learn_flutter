@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -116,14 +115,14 @@ class Case07PracticeDemo extends ConsumerWidget {
     final currentFilter = ref.watch(challengeFilterProvider);
     final taskAsync = ref.watch(filteredChallengeTasksProvider);
 
-    ref.listen(challengeTaskListProvider, (prev,next){
+    ref.listen(challengeTaskListProvider, (prev, next) {
       final wasError = prev?.hasError ?? false;
       final isError = next.hasError;
 
       if (!wasError && isError) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('任务加载失败: ${next.error}'))
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('任务加载失败: ${next.error}')));
       }
     });
 

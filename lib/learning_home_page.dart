@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
-import 'chapter_03/lifecycle_demo_page.dart';
-import 'chapter_04/layout_lab_page.dart';
-import 'chapter_05/case_00_state_management_lab_page.dart';
+import 'learning_routes.dart';
 
 class LearningHomePage extends StatelessWidget {
   const LearningHomePage({super.key});
@@ -14,19 +13,31 @@ class LearningHomePage extends StatelessWidget {
         title: '03 Widget 生命周期',
         subtitle: '看 initState、didUpdateWidget、dispose 如何触发',
         icon: Icons.account_tree_outlined,
-        builder: (_) => const LifecycleDemoPage(),
+        path: LearningRoutes.chapter03Lifecycle,
       ),
       _LearningEntry(
         title: '04 布局案例实验室',
         subtitle: '像学 CSS 布局一样，逐个拆 Flutter 经典布局',
         icon: Icons.dashboard_customize_outlined,
-        builder: (_) => const LayoutLabPage(),
+        path: LearningRoutes.chapter04Layout,
       ),
       _LearningEntry(
         title: '05 状态管理与 Riverpod',
         subtitle: '练 watch、read、listen 和状态分层',
         icon: Icons.hub_outlined,
-        builder: (_) => const StateManagementLabPage(),
+        path: LearningRoutes.chapter05State,
+      ),
+      _LearningEntry(
+        title: '06 转场动画实验室',
+        subtitle: '练 PageRouteBuilder、Hero 和常见转场组合',
+        icon: Icons.animation_outlined,
+        path: LearningRoutes.chapter06Transition,
+      ),
+      _LearningEntry(
+        title: '07 路由导航与页面组织',
+        subtitle: '练 go_router、参数、返回值和 redirect',
+        icon: Icons.route_outlined,
+        path: LearningRoutes.chapter07Lab,
       ),
     ];
 
@@ -93,9 +104,7 @@ class _LearningEntryTile extends StatelessWidget {
         trailing: const Icon(Icons.chevron_right),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         onTap: () {
-          Navigator.of(
-            context,
-          ).push(MaterialPageRoute<void>(builder: entry.builder));
+          context.push(entry.path);
         },
       ),
     );
@@ -107,11 +116,11 @@ class _LearningEntry {
     required this.title,
     required this.subtitle,
     required this.icon,
-    required this.builder,
+    required this.path,
   });
 
   final String title;
   final String subtitle;
   final IconData icon;
-  final WidgetBuilder builder;
+  final String path;
 }
