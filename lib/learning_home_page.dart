@@ -63,6 +63,18 @@ class LearningHomePage extends StatelessWidget {
         icon: Icons.construction_outlined,
         path: LearningRoutes.chapter11Engineering,
       ),
+      _LearningEntry(
+        title: '13 多语言与本地化',
+        subtitle: '练 locale、fallback、占位符和 gen-l10n 心智',
+        icon: Icons.translate_outlined,
+        path: LearningRoutes.chapter13Localization,
+      ),
+      _LearningEntry(
+        title: '14 Firebase 登录与账号状态',
+        subtitle: '练 provider 登录、loading/error 和 auth state',
+        icon: Icons.verified_user_outlined,
+        path: LearningRoutes.chapter14FirebaseAuth,
+      ),
     ];
 
     return Scaffold(

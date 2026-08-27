@@ -14,6 +14,8 @@ import 'chapter_08/async_network_lab_page.dart';
 import 'chapter_09/local_storage_lab_page.dart';
 import 'chapter_10/media_lab_page.dart';
 import 'chapter_11/engineering_checklist_page.dart';
+import 'chapter_13/localization_lab_page.dart';
+import 'chapter_14/firebase_auth_lab_page.dart';
 import 'learning_home_page.dart';
 import 'learning_routes.dart';
 
@@ -104,6 +106,14 @@ GoRouter createLearningRouter(RouteLabSession session) {
       GoRoute(
         path: LearningRoutes.chapter11Engineering,
         builder: (context, state) => const EngineeringChecklistPage(),
+      ),
+      GoRoute(
+        path: LearningRoutes.chapter13Localization,
+        builder: (context, state) => const LocalizationLabPage(),
+      ),
+      GoRoute(
+        path: LearningRoutes.chapter14FirebaseAuth,
+        builder: (context, state) => const FirebaseAuthLabPage(),
       ),
     ],
   );

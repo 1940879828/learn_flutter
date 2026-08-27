@@ -8,6 +8,11 @@ import 'package:learn_flutter/chapter_08/spell_generation_models.dart';
 import 'package:learn_flutter/chapter_09/local_storage_lab_page.dart';
 import 'package:learn_flutter/chapter_09/local_storage_models.dart';
 import 'package:learn_flutter/chapter_10/media_lab_page.dart';
+import 'package:learn_flutter/chapter_13/localization_lab_page.dart';
+import 'package:learn_flutter/chapter_13/localization_models.dart';
+import 'package:learn_flutter/chapter_14/fake_firebase_auth_models.dart';
+import 'package:learn_flutter/chapter_14/firebase_auth_lab_page.dart';
+import 'package:learn_flutter/chapter_14/spellai_auth_models.dart';
 import 'package:learn_flutter/main.dart';
 
 void main() {
@@ -55,6 +60,121 @@ void main() {
     expect(records.single.prompt, '测试 prompt');
   });
 
+  test('LearningMessageCatalog handles placeholders and fallback', () {
+    const zhCatalog = LearningMessageCatalog(LearningLocale.zh);
+    final zhPreview = zhCatalog.preview(name: 'Mia', count: 3);
+
+    expect(zhPreview['welcome'], '欢迎回来，Mia');
+    expect(zhPreview['credits'], '剩余 3 个金币');
+    expect(zhPreview['fallback'], 'Fallback text from English');
+  });
+
+  test('FakeFirebaseAuthService signs in fails and signs out', () async {
+    final service = FakeFirebaseAuthService();
+    addTearDown(service.dispose);
+
+    final failure = await service.signIn(
+      FakeAuthProvider.google,
+      failProvider: true,
+    );
+    expect(failure.state, FakeLoginState.authFailed);
+    expect(failure.logged, isFalse);
+
+    final success = await service.signIn(FakeAuthProvider.google);
+    expect(success.state, FakeLoginState.signedIn);
+    expect(success.user?.provider, FakeAuthProvider.google);
+
+    final repeated = await service.signIn(FakeAuthProvider.apple);
+    expect(repeated.state, FakeLoginState.signedIn);
+    expect(repeated.user?.provider, FakeAuthProvider.google);
+
+    service.signOut();
+    expect(service.current.state, FakeLoginState.idle);
+    expect(service.current.logged, isFalse);
+  });
+
+  test('FakeFirebaseAuthService handles backend failure and cancel', () async {
+    final service = FakeFirebaseAuthService();
+    addTearDown(service.dispose);
+
+    final backendFailure = await service.signIn(
+      FakeAuthProvider.line,
+      failBackend: true,
+    );
+    expect(backendFailure.state, FakeLoginState.backendFailed);
+    expect(backendFailure.logged, isFalse);
+
+    final pending = service.signIn(FakeAuthProvider.facebook);
+    service.cancel();
+    final canceled = await pending;
+
+    expect(canceled.state, FakeLoginState.canceled);
+    expect(canceled.logged, isFalse);
+    expect(service.current.state, FakeLoginState.canceled);
+  });
+
+  test(
+    'FakeFirebaseAuthService ignores pending sign in after dispose',
+    () async {
+      final service = FakeFirebaseAuthService();
+      final signIn = service.signIn(FakeAuthProvider.line);
+
+      service.dispose();
+      final snapshot = await signIn;
+
+      expect(snapshot.state, FakeLoginState.logging);
+      expect(snapshot.logged, isFalse);
+    },
+  );
+
+  test('SpellAiTokenSnapshot reads JWT payload without exposing raw token', () {
+    const header = 'eyJhbGciOiJub25lIn0';
+    const payload =
+        'eyJpYXQiOjE3ODc4MDAwMDAsImV4cCI6MTc4NzgwMzYwMCwiZmlyZWJhc2UiOnsic2lnbl9pbl9wcm92aWRlciI6Imdvb2dsZS5jb20ifX0';
+    const signature = 'signature';
+    const token = '$header.$payload.$signature';
+
+    final snapshot = SpellAiTokenSnapshot.fromIdToken(
+      uid: 'firebase_uid',
+      idToken: token,
+    );
+
+    expect(snapshot.uid, 'firebase_uid');
+    expect(snapshot.signInProvider, 'google.com');
+    expect(
+      snapshot.expiresAt,
+      DateTime.fromMillisecondsSinceEpoch(1787803600000, isUtc: true),
+    );
+    expect(snapshot.maskedIdToken, isNot(contains(payload)));
+  });
+
+  test('SpellAiUserInfo maps backend user json and preserves raw data', () {
+    final user = SpellAiUserInfo.fromJson({
+      'custom_uid': 'custom_123',
+      'user_name': 'Mia',
+      'user_icon': 'https://example.com/avatar.png',
+      'is_vip': true,
+      'draw_num': 18,
+      'daily_ad_limit': 2,
+      'flag': 1,
+      'subscribed_product_ids': ['spellai_yearly'],
+      'use_coin_discount': true,
+      'is_lifetime_vip': false,
+      'remaining_chat_times': 7,
+      'spark_remaining_chat_times': 5,
+      'muse_remaining_chat_times': 3,
+      'registered_version': '1.0.0',
+      'extra_field': 'kept for full JSON display',
+    });
+
+    expect(user.uuid, 'custom_123');
+    expect(user.userName, 'Mia');
+    expect(user.isVip, isTrue);
+    expect(user.subscribedProductIds, ['spellai_yearly']);
+    expect(user.chatMuseAvailableCount, 3);
+    expect(user.rawJson['extra_field'], 'kept for full JSON display');
+  });
+
   testWidgets('Home page lists learning chapter entries', (
     WidgetTester tester,
   ) async {
@@ -72,6 +192,8 @@ void main() {
       '09 本地存储权限与文件',
       '10 音视频与媒体能力',
       '11 工程化调试测试构建',
+      '13 多语言与本地化',
+      '14 Firebase 登录与账号状态',
     ]) {
       await tester.scrollUntilVisible(
         find.text(title),
@@ -424,7 +546,7 @@ void main() {
     expect(find.text('Flutter 学习目录'), findsOneWidget);
   });
 
-  testWidgets('New chapter entries from 08 to 11 can be opened', (
+  testWidgets('New chapter entries from 08 to 14 can be opened', (
     WidgetTester tester,
   ) async {
     final chapters = <String, String>{
@@ -432,6 +554,8 @@ void main() {
       '09 本地存储权限与文件': '本地能力拆成三块',
       '10 音视频与媒体能力': '媒体来源与生命周期',
       '11 工程化调试测试构建': '改动前后的门禁清单',
+      '13 多语言与本地化': '多语言字典实验',
+      '14 Firebase 登录与账号状态': 'Firebase 登录链路模拟',
     };
 
     for (final entry in chapters.entries) {
@@ -557,5 +681,69 @@ void main() {
     await tester.tap(find.text('pause'));
     await tester.pump();
     expect(find.text('状态：已暂停'), findsOneWidget);
+  });
+
+  testWidgets('Localization lab switches locale and updates placeholder', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: LocalizationLabPage()));
+
+    expect(find.text('当前 locale：en'), findsOneWidget);
+    expect(find.text('Create with SpellAI'), findsOneWidget);
+    expect(find.text('12 credits left'), findsOneWidget);
+
+    await tester.tap(find.text('中文'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('当前 locale：zh'), findsOneWidget);
+    expect(find.text('用 SpellAI 创作'), findsOneWidget);
+    expect(find.text('剩余 12 个金币'), findsOneWidget);
+    expect(find.textContaining('Fallback text from English'), findsOneWidget);
+
+    await tester.tap(find.text('模拟消耗 1 个金币'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('剩余 11 个金币'), findsOneWidget);
+  });
+
+  testWidgets('Firebase auth lab signs in fails and signs out', (
+    WidgetTester tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(900, 1200));
+    addTearDown(() async {
+      await tester.binding.setSurfaceSize(null);
+    });
+
+    await tester.pumpWidget(const MaterialApp(home: FirebaseAuthLabPage()));
+
+    expect(find.text('状态：未登录'), findsOneWidget);
+
+    await tester.tap(find.text('Google'));
+    await tester.pump();
+    expect(find.text('状态：登录中'), findsOneWidget);
+
+    await tester.pump(const Duration(milliseconds: 600));
+    expect(find.text('状态：已登录'), findsOneWidget);
+    expect(find.text('provider：google.com'), findsOneWidget);
+
+    await tester.tap(find.text('退出登录'));
+    await tester.pumpAndSettle();
+    expect(find.text('状态：未登录'), findsOneWidget);
+
+    await tester.tap(find.text('模拟供应商认证失败'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Apple'));
+    await tester.pump(const Duration(milliseconds: 600));
+
+    expect(find.text('状态：供应商认证失败'), findsOneWidget);
+
+    await tester.tap(find.text('模拟供应商认证失败'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('模拟后端创建用户失败'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('LINE'));
+    await tester.pump(const Duration(milliseconds: 600));
+
+    expect(find.text('状态：后端创建用户失败'), findsOneWidget);
   });
 }
