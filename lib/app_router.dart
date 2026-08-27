@@ -10,6 +10,10 @@ import 'chapter_07/route_lab_page.dart';
 import 'chapter_07/route_login_page.dart';
 import 'chapter_07/route_search_page.dart';
 import 'chapter_07/route_task_detail_page.dart';
+import 'chapter_08/async_network_lab_page.dart';
+import 'chapter_09/local_storage_lab_page.dart';
+import 'chapter_10/media_lab_page.dart';
+import 'chapter_11/engineering_checklist_page.dart';
 import 'learning_home_page.dart';
 import 'learning_routes.dart';
 
@@ -84,6 +88,22 @@ GoRouter createLearningRouter(RouteLabSession session) {
             from: state.uri.queryParameters['from'] ?? '',
           );
         },
+      ),
+      GoRoute(
+        path: LearningRoutes.chapter08AsyncNetwork,
+        builder: (context, state) => const AsyncNetworkLabPage(),
+      ),
+      GoRoute(
+        path: LearningRoutes.chapter09LocalStorage,
+        builder: (context, state) => const LocalStorageLabPage(),
+      ),
+      GoRoute(
+        path: LearningRoutes.chapter10Media,
+        builder: (context, state) => const MediaLabPage(),
+      ),
+      GoRoute(
+        path: LearningRoutes.chapter11Engineering,
+        builder: (context, state) => const EngineeringChecklistPage(),
       ),
     ],
   );

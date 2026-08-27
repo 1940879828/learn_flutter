@@ -11,6 +11,10 @@ class LearningRoutes {
   static const chapter07Create = '/chapter-07/create';
   static const chapter07Search = '/chapter-07/search';
   static const chapter07Login = '/chapter-07/login';
+  static const chapter08AsyncNetwork = '/chapter-08/async-network';
+  static const chapter09LocalStorage = '/chapter-09/local-storage';
+  static const chapter10Media = '/chapter-10/media';
+  static const chapter11Engineering = '/chapter-11/engineering';
 
   static String taskDetailLocation(String taskId, {String? tab}) {
     return Uri(

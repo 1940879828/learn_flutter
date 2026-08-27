@@ -39,6 +39,30 @@ class LearningHomePage extends StatelessWidget {
         icon: Icons.route_outlined,
         path: LearningRoutes.chapter07Lab,
       ),
+      _LearningEntry(
+        title: '08 异步网络数据模型',
+        subtitle: '练 API client、repository、model 和三态 UI',
+        icon: Icons.cloud_queue_outlined,
+        path: LearningRoutes.chapter08AsyncNetwork,
+      ),
+      _LearningEntry(
+        title: '09 本地存储权限与文件',
+        subtitle: '练最近 prompt、本地 JSON 和模拟权限状态',
+        icon: Icons.folder_copy_outlined,
+        path: LearningRoutes.chapter09LocalStorage,
+      ),
+      _LearningEntry(
+        title: '10 音视频与媒体能力',
+        subtitle: '练媒体来源、图片预览和视频生命周期',
+        icon: Icons.video_library_outlined,
+        path: LearningRoutes.chapter10Media,
+      ),
+      _LearningEntry(
+        title: '11 工程化调试测试构建',
+        subtitle: '练 pubspec、analyze、test、codegen 门禁判断',
+        icon: Icons.construction_outlined,
+        path: LearningRoutes.chapter11Engineering,
+      ),
     ];
 
     return Scaffold(

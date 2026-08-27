@@ -1,9 +1,60 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:learn_flutter/chapter_08/async_network_lab_page.dart';
+import 'package:learn_flutter/chapter_08/spell_generation_models.dart';
+import 'package:learn_flutter/chapter_09/local_storage_lab_page.dart';
+import 'package:learn_flutter/chapter_09/local_storage_models.dart';
+import 'package:learn_flutter/chapter_10/media_lab_page.dart';
 import 'package:learn_flutter/main.dart';
 
 void main() {
+  test('SpellGenerationTask supports JSON roundtrip', () {
+    final task = SpellGenerationTask(
+      id: 'draw_101',
+      prompt: 'Crystal mage portrait',
+      previewUrl: 'https://example.com/draw_101.png',
+      status: SpellGenerationStatus.completed,
+      createdAt: DateTime.utc(2026, 8, 27, 9, 20),
+    );
+
+    final decoded = SpellGenerationTask.fromJson(task.toJson());
+
+    expect(decoded.id, task.id);
+    expect(decoded.prompt, task.prompt);
+    expect(decoded.previewUrl, task.previewUrl);
+    expect(decoded.status, task.status);
+    expect(decoded.createdAt, task.createdAt);
+  });
+
+  test('JsonPromptFileStore writes and reads prompt records', () async {
+    final directory = await Directory.systemTemp.createTemp(
+      'learn_flutter_storage_test_',
+    );
+    addTearDown(() async {
+      if (await directory.exists()) {
+        await directory.delete(recursive: true);
+      }
+    });
+
+    final store = JsonPromptFileStore(directory: directory);
+    final file = await store.writeRecords([
+      PromptRecord(
+        id: 'prompt_1',
+        prompt: '测试 prompt',
+        createdAt: DateTime.utc(2026, 8, 27, 10),
+      ),
+    ]);
+
+    final records = await store.readRecords(file);
+
+    expect(records, hasLength(1));
+    expect(records.single.id, 'prompt_1');
+    expect(records.single.prompt, '测试 prompt');
+  });
+
   testWidgets('Home page lists learning chapter entries', (
     WidgetTester tester,
   ) async {
@@ -15,6 +66,20 @@ void main() {
     expect(find.text('05 状态管理与 Riverpod'), findsOneWidget);
     expect(find.text('06 转场动画实验室'), findsOneWidget);
     expect(find.text('07 路由导航与页面组织'), findsOneWidget);
+
+    for (final title in [
+      '08 异步网络数据模型',
+      '09 本地存储权限与文件',
+      '10 音视频与媒体能力',
+      '11 工程化调试测试构建',
+    ]) {
+      await tester.scrollUntilVisible(
+        find.text(title),
+        160,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(find.text(title), findsOneWidget);
+    }
   });
 
   testWidgets(
@@ -357,5 +422,140 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Flutter 学习目录'), findsOneWidget);
+  });
+
+  testWidgets('New chapter entries from 08 to 11 can be opened', (
+    WidgetTester tester,
+  ) async {
+    final chapters = <String, String>{
+      '08 异步网络数据模型': '模拟 SpellAI 请求链路',
+      '09 本地存储权限与文件': '本地能力拆成三块',
+      '10 音视频与媒体能力': '媒体来源与生命周期',
+      '11 工程化调试测试构建': '改动前后的门禁清单',
+    };
+
+    for (final entry in chapters.entries) {
+      await tester.pumpWidget(const MyApp());
+      await tester.scrollUntilVisible(
+        find.text(entry.key),
+        180,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.tap(find.text(entry.key));
+      await tester.pumpAndSettle();
+
+      expect(find.text(entry.value), findsOneWidget);
+      expect(tester.takeException(), isNull);
+
+      await tester.tap(find.byTooltip('回到学习首页'));
+      await tester.pumpAndSettle();
+      expect(find.text('Flutter 学习目录'), findsOneWidget);
+    }
+  });
+
+  testWidgets('Async network lab renders loading success and error states', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: AsyncNetworkLabPage()));
+
+    expect(find.text('loading：正在模拟请求任务列表'), findsOneWidget);
+
+    await tester.pump(const Duration(milliseconds: 600));
+    expect(find.text('success：共 3 个任务'), findsOneWidget);
+    expect(find.textContaining('Crystal mage portrait'), findsOneWidget);
+
+    await tester.tap(find.text('模拟错误'));
+    await tester.pump();
+    expect(find.text('loading：正在模拟请求任务列表'), findsOneWidget);
+
+    await tester.pump(const Duration(milliseconds: 600));
+    expect(find.textContaining('error：模拟 DioException'), findsOneWidget);
+  });
+
+  testWidgets('Async network lab ignores stale responses', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: AsyncNetworkLabPage()));
+    await tester.pump(const Duration(milliseconds: 600));
+
+    await tester.tap(find.text('模拟错误'));
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.tap(find.text('重新加载成功'));
+    await tester.pump(const Duration(milliseconds: 600));
+
+    expect(find.text('success：共 3 个任务'), findsOneWidget);
+    expect(find.textContaining('error：模拟 DioException'), findsNothing);
+  });
+
+  testWidgets('Local storage lab saves prompt and switches permission', (
+    WidgetTester tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(900, 1200));
+    addTearDown(() async {
+      await tester.binding.setSurfaceSize(null);
+    });
+
+    await tester.pumpWidget(const MaterialApp(home: LocalStorageLabPage()));
+
+    await tester.enterText(find.byType(TextField), '测试 prompt');
+    await tester.tap(find.text('保存最近 prompt'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('测试 prompt'), findsWidgets);
+
+    for (var i = 0; i < 6; i++) {
+      if (find.text('部分授权').evaluate().isNotEmpty) {
+        break;
+      }
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, -180));
+      await tester.pumpAndSettle();
+    }
+    await tester.tap(find.text('部分授权'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('当前状态：部分授权'), findsOneWidget);
+    expect(find.textContaining('iOS limited'), findsOneWidget);
+  });
+
+  testWidgets('Media lab switches source preview and video lifecycle', (
+    WidgetTester tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(900, 1200));
+    addTearDown(() async {
+      await tester.binding.setSurfaceSize(null);
+    });
+
+    await tester.pumpWidget(const MaterialApp(home: MediaLabPage()));
+
+    expect(find.text('当前来源：asset'), findsOneWidget);
+
+    await tester.tap(find.text('network'));
+    await tester.pumpAndSettle();
+    expect(find.text('当前来源：network'), findsOneWidget);
+
+    await tester.tap(find.text('模拟选择 file 图片'));
+    await tester.pumpAndSettle();
+    expect(find.text('file 图片预览'), findsOneWidget);
+
+    expect(find.text('状态：未初始化'), findsOneWidget);
+
+    await tester.tap(find.text('play'));
+    await tester.pump();
+    expect(find.text('play() ignored: not ready'), findsOneWidget);
+
+    await tester.tap(find.text('initialize'));
+    await tester.pump();
+    expect(find.text('状态：初始化中'), findsOneWidget);
+
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('状态：已就绪'), findsOneWidget);
+
+    await tester.tap(find.text('play'));
+    await tester.pump();
+    expect(find.text('状态：播放中'), findsOneWidget);
+
+    await tester.tap(find.text('pause'));
+    await tester.pump();
+    expect(find.text('状态：已暂停'), findsOneWidget);
   });
 }
