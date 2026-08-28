@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+
+final _routeTransitionDuration = 520.ms;
+final _routeReverseDuration = 340.ms;
 
 class TransitionLabPage extends StatelessWidget {
   const TransitionLabPage({super.key});
@@ -96,8 +100,8 @@ class TransitionLabPage extends StatelessWidget {
 
   PageRouteBuilder<void> _buildDemoRoute(_TransitionDemo demo) {
     return PageRouteBuilder<void>(
-      transitionDuration: const Duration(milliseconds: 520),
-      reverseTransitionDuration: const Duration(milliseconds: 340),
+      transitionDuration: _routeTransitionDuration,
+      reverseTransitionDuration: _routeReverseDuration,
       pageBuilder: (context, animation, secondaryAnimation) {
         return switch (demo.type) {
           _TransitionType.heroHeader => _HeroHeaderResultPage(demo: demo),
@@ -115,93 +119,118 @@ class TransitionLabPage extends StatelessWidget {
         };
       },
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        final curved = CurvedAnimation(
-          parent: animation,
-          curve: Curves.easeOutCubic,
-          reverseCurve: Curves.easeInCubic,
-        );
-
         return switch (demo.type) {
-          _TransitionType.slide => SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(1, 0),
-              end: Offset.zero,
-            ).animate(curved),
+          _TransitionType.slide => _animateRoute(
+            animation: animation,
             child: child,
+            effects: (route) =>
+                route.slideX(begin: 1, duration: _routeTransitionDuration),
           ),
-          _TransitionType.fade => FadeTransition(opacity: curved, child: child),
-          _TransitionType.scale => FadeTransition(
-            opacity: curved,
-            child: ScaleTransition(
-              scale: Tween<double>(begin: 0.88, end: 1).animate(curved),
-              child: child,
+          _TransitionType.fade => _animateRoute(
+            animation: animation,
+            child: child,
+            effects: (route) =>
+                route.fadeIn(duration: _routeTransitionDuration),
+          ),
+          _TransitionType.scale => _animateRoute(
+            animation: animation,
+            child: child,
+            effects: (route) => route
+                .fadeIn(duration: _routeTransitionDuration)
+                .scale(
+                  begin: const Offset(0.88, 0.88),
+                  duration: _routeTransitionDuration,
+                ),
+          ),
+          _TransitionType.rotation => _animateRoute(
+            animation: animation,
+            child: child,
+            effects: (route) => route
+                .fadeIn(duration: _routeTransitionDuration)
+                .rotate(
+                  begin: -0.04,
+                  end: 0,
+                  duration: _routeTransitionDuration,
+                )
+                .scale(
+                  begin: const Offset(0.92, 0.92),
+                  duration: _routeTransitionDuration,
+                ),
+          ),
+          _TransitionType.size => _animateRoute(
+            animation: animation,
+            child: child,
+            effects: (route) => route.scaleY(
+              begin: 0,
+              duration: _routeTransitionDuration,
+              alignment: Alignment.topCenter,
             ),
           ),
-          _TransitionType.rotation => FadeTransition(
-            opacity: curved,
-            child: RotationTransition(
-              turns: Tween<double>(begin: -0.04, end: 0).animate(curved),
-              child: ScaleTransition(
-                scale: Tween<double>(begin: 0.92, end: 1).animate(curved),
-                child: child,
-              ),
-            ),
-          ),
-          _TransitionType.size => Align(
-            alignment: Alignment.topCenter,
-            child: SizeTransition(
-              sizeFactor: curved,
-              axisAlignment: -1,
-              child: child,
-            ),
-          ),
-          _TransitionType.hero => FadeTransition(opacity: curved, child: child),
-          _TransitionType.containerTransform => FadeTransition(
-            opacity: curved,
-            child: ScaleTransition(
-              scale: Tween<double>(begin: 0.72, end: 1).animate(curved),
-              child: child,
-            ),
-          ),
-          _TransitionType.heroHeader => FadeTransition(
-            opacity: curved,
+          _TransitionType.hero => _animateRoute(
+            animation: animation,
             child: child,
+            effects: (route) =>
+                route.fadeIn(duration: _routeTransitionDuration),
           ),
-          _TransitionType.staggered => FadeTransition(
-            opacity: curved,
+          _TransitionType.containerTransform => _animateRoute(
+            animation: animation,
             child: child,
+            effects: (route) => route
+                .fadeIn(duration: _routeTransitionDuration)
+                .scale(
+                  begin: const Offset(0.72, 0.72),
+                  duration: _routeTransitionDuration,
+                ),
           ),
-          _TransitionType.collapsingHeader => FadeTransition(
-            opacity: curved,
+          _TransitionType.heroHeader => _animateRoute(
+            animation: animation,
             child: child,
+            effects: (route) =>
+                route.fadeIn(duration: _routeTransitionDuration),
           ),
-          _TransitionType.parallaxHeader => FadeTransition(
-            opacity: curved,
+          _TransitionType.staggered => _animateRoute(
+            animation: animation,
             child: child,
+            effects: (route) =>
+                route.fadeIn(duration: _routeTransitionDuration),
           ),
-          _TransitionType.sharedAxisZ => FadeTransition(
-            opacity: curved,
-            child: ScaleTransition(
-              scale: Tween<double>(begin: 0.84, end: 1).animate(curved),
-              child: child,
-            ),
-          ),
-          _TransitionType.fadeThrough => FadeTransition(
-            opacity: TweenSequence<double>([
-              TweenSequenceItem(tween: ConstantTween<double>(0), weight: 25),
-              TweenSequenceItem(
-                tween: Tween<double>(begin: 0, end: 1),
-                weight: 75,
-              ),
-            ]).animate(curved),
-            child: ScaleTransition(
-              scale: Tween<double>(begin: 0.96, end: 1).animate(curved),
-              child: child,
-            ),
-          ),
-          _TransitionType.animatedContainer => FadeTransition(
-            opacity: curved,
+          _TransitionType.collapsingHeader => _animateRoute(
+            animation: animation,
             child: child,
+            effects: (route) =>
+                route.fadeIn(duration: _routeTransitionDuration),
+          ),
+          _TransitionType.parallaxHeader => _animateRoute(
+            animation: animation,
+            child: child,
+            effects: (route) =>
+                route.fadeIn(duration: _routeTransitionDuration),
+          ),
+          _TransitionType.sharedAxisZ => _animateRoute(
+            animation: animation,
+            child: child,
+            effects: (route) => route
+                .fadeIn(duration: _routeTransitionDuration)
+                .scale(
+                  begin: const Offset(0.84, 0.84),
+                  duration: _routeTransitionDuration,
+                ),
+          ),
+          _TransitionType.fadeThrough => _animateRoute(
+            animation: animation,
+            child: child,
+            effects: (route) => route
+                .fadeIn(delay: 130.ms, duration: 390.ms)
+                .scale(
+                  begin: const Offset(0.96, 0.96),
+                  duration: _routeTransitionDuration,
+                ),
+          ),
+          _TransitionType.animatedContainer => _animateRoute(
+            animation: animation,
+            child: child,
+            effects: (route) =>
+                route.fadeIn(duration: _routeTransitionDuration),
           ),
         };
       },
@@ -246,12 +275,33 @@ class _TransitionIntro extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          '同一个目标页可以套不同动画。重点看 transitionsBuilder 里返回了哪个动画 Widget。',
+          '同一个目标页可以套不同动画。重点看 transitionsBuilder 如何把 route animation 绑定到 flutter_animate 的链式效果。',
           style: Theme.of(context).textTheme.bodyMedium,
         ),
       ],
     );
   }
+}
+
+typedef _RouteEffects = Widget Function(Animate route);
+
+Widget _animateRoute({
+  required Animation<double> animation,
+  required Widget child,
+  required _RouteEffects effects,
+}) {
+  return AnimatedBuilder(
+    animation: animation,
+    child: child,
+    builder: (context, child) {
+      final curve = animation.status == AnimationStatus.reverse
+          ? Curves.easeInCubic
+          : Curves.easeOutCubic;
+      final progress = curve.transform(animation.value.clamp(0, 1).toDouble());
+
+      return effects(child!.animate(value: progress, autoPlay: false));
+    },
+  );
 }
 
 class _TransitionDemoTile extends StatelessWidget {
@@ -334,40 +384,17 @@ class _HeroHeaderResultPage extends StatelessWidget {
   }
 }
 
-class _StaggeredResultPage extends StatefulWidget {
+class _StaggeredResultPage extends StatelessWidget {
   const _StaggeredResultPage({required this.demo});
 
   final _TransitionDemo demo;
-
-  @override
-  State<_StaggeredResultPage> createState() => _StaggeredResultPageState();
-}
-
-class _StaggeredResultPageState extends State<_StaggeredResultPage>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 900),
-    )..forward();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     final items = ['标题从下方浮现', '副标题稍后出现', '操作按钮最后进入'];
 
     return Scaffold(
-      appBar: AppBar(title: Text(widget.demo.title)),
+      appBar: AppBar(title: Text(demo.title)),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -375,67 +402,64 @@ class _StaggeredResultPageState extends State<_StaggeredResultPage>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Hero(
-                tag: widget.demo.heroTag,
+                tag: demo.heroTag,
                 child: CircleAvatar(
                   radius: 40,
                   backgroundColor: Theme.of(
                     context,
                   ).colorScheme.primaryContainer,
-                  child: Icon(widget.demo.icon, size: 40),
+                  child: Icon(demo.icon, size: 40),
                 ),
               ),
               const SizedBox(height: 24),
-              for (var i = 0; i < items.length; i++) ...[
-                _StaggeredItem(
-                  animation: _controller,
-                  index: i,
-                  text: items[i],
-                ),
-                const SizedBox(height: 12),
-              ],
+              ...items.indexed
+                  .map((entry) {
+                    final (index, text) = entry;
+
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Card(
+                        child: ListTile(
+                          leading: Text('0${index + 1}'),
+                          title: Text(text),
+                        ),
+                      ),
+                    );
+                  })
+                  .toList()
+                  .animate(interval: 120.ms)
+                  .fadeIn(duration: 360.ms, curve: Curves.easeOutCubic)
+                  .slideY(
+                    begin: 0.18,
+                    duration: 360.ms,
+                    curve: Curves.easeOutCubic,
+                  ),
+              Text(
+                    demo.explanation,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  )
+                  .animate(delay: 520.ms)
+                  .fadeIn(duration: 280.ms, curve: Curves.easeOutCubic)
+                  .slideY(
+                    begin: 0.08,
+                    duration: 280.ms,
+                    curve: Curves.easeOutCubic,
+                  ),
               const Spacer(),
               FilledButton.icon(
-                onPressed: () => Navigator.of(context).pop(),
-                icon: const Icon(Icons.arrow_back),
-                label: const Text('返回动画列表'),
-              ),
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(Icons.arrow_back),
+                    label: const Text('返回动画列表'),
+                  )
+                  .animate(delay: 640.ms)
+                  .fadeIn(duration: 260.ms, curve: Curves.easeOutCubic)
+                  .slideY(
+                    begin: 0.08,
+                    duration: 260.ms,
+                    curve: Curves.easeOutCubic,
+                  ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _StaggeredItem extends StatelessWidget {
-  const _StaggeredItem({
-    required this.animation,
-    required this.index,
-    required this.text,
-  });
-
-  final Animation<double> animation;
-  final int index;
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    final start = index * 0.18;
-    final end = start + 0.5;
-    final curved = CurvedAnimation(
-      parent: animation,
-      curve: Interval(start, end.clamp(0, 1), curve: Curves.easeOutCubic),
-    );
-
-    return FadeTransition(
-      opacity: curved,
-      child: SlideTransition(
-        position: Tween<Offset>(
-          begin: const Offset(0, 0.25),
-          end: Offset.zero,
-        ).animate(curved),
-        child: Card(
-          child: ListTile(leading: Text('0${index + 1}'), title: Text(text)),
         ),
       ),
     );
@@ -582,6 +606,34 @@ class _AnimatedContainerResultPageState
 
   @override
   Widget build(BuildContext context) {
+    final card =
+        GestureDetector(
+              onTap: () => setState(() => _expanded = !_expanded),
+              child: AnimatedContainer(
+                duration: 420.ms,
+                curve: Curves.easeOutCubic,
+                width: double.infinity,
+                height: _expanded ? 220 : 120,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: _expanded
+                      ? Theme.of(context).colorScheme.primaryContainer
+                      : Theme.of(context).colorScheme.secondaryContainer,
+                  borderRadius: BorderRadius.circular(_expanded ? 28 : 8),
+                ),
+                child: Align(
+                  alignment: _expanded ? Alignment.center : Alignment.topLeft,
+                  child: Icon(widget.demo.icon, size: _expanded ? 72 : 40),
+                ),
+              ),
+            )
+            .animate(key: ValueKey(_expanded))
+            .scale(
+              begin: const Offset(0.98, 0.98),
+              duration: 180.ms,
+              curve: Curves.easeOutCubic,
+            );
+
     return Scaffold(
       appBar: AppBar(title: Text(widget.demo.title)),
       body: SafeArea(
@@ -590,26 +642,7 @@ class _AnimatedContainerResultPageState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              GestureDetector(
-                onTap: () => setState(() => _expanded = !_expanded),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 420),
-                  curve: Curves.easeOutCubic,
-                  width: double.infinity,
-                  height: _expanded ? 220 : 120,
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: _expanded
-                        ? Theme.of(context).colorScheme.primaryContainer
-                        : Theme.of(context).colorScheme.secondaryContainer,
-                    borderRadius: BorderRadius.circular(_expanded ? 28 : 8),
-                  ),
-                  child: Align(
-                    alignment: _expanded ? Alignment.center : Alignment.topLeft,
-                    child: Icon(widget.demo.icon, size: _expanded ? 72 : 40),
-                  ),
-                ),
-              ),
+              card,
               const SizedBox(height: 24),
               const Text('点上面的卡片，观察同一个 Widget 的尺寸、颜色、圆角和内容位置一起过渡。'),
               const Spacer(),
