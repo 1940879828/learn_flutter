@@ -1,23 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../app_state_providers.dart';
 import '../learning_navigation_controls.dart';
 import 'localization_models.dart';
 
-class LocalizationLabPage extends StatefulWidget {
+class LocalizationLabPage extends ConsumerStatefulWidget {
   const LocalizationLabPage({super.key});
 
   @override
-  State<LocalizationLabPage> createState() => _LocalizationLabPageState();
+  ConsumerState<LocalizationLabPage> createState() =>
+      _LocalizationLabPageState();
 }
 
-class _LocalizationLabPageState extends State<LocalizationLabPage> {
-  LearningLocale _locale = LearningLocale.en;
+LearningLocale _learningLocaleFromApp(Locale? locale) {
+  return LearningLocale.values.firstWhere(
+    (item) => item.code == locale?.languageCode,
+    orElse: () => LearningLocale.en,
+  );
+}
+
+class _LocalizationLabPageState extends ConsumerState<LocalizationLabPage> {
   int _credits = 12;
 
   void _setLocale(LearningLocale locale) {
-    setState(() {
-      _locale = locale;
-    });
+    ref.read(appLocaleProvider.notifier).state = Locale(locale.code);
   }
 
   void _spendCredit() {
@@ -30,7 +37,8 @@ class _LocalizationLabPageState extends State<LocalizationLabPage> {
 
   @override
   Widget build(BuildContext context) {
-    final catalog = LearningMessageCatalog(_locale);
+    final selectedLocale = _learningLocaleFromApp(ref.watch(appLocaleProvider));
+    final catalog = LearningMessageCatalog(selectedLocale);
     final preview = catalog.preview(name: 'Mia', count: _credits);
 
     return Scaffold(
@@ -54,14 +62,14 @@ class _LocalizationLabPageState extends State<LocalizationLabPage> {
               runSpacing: 8,
               children: LearningLocale.values.map((locale) {
                 return ChoiceChip(
-                  selected: _locale == locale,
+                  selected: selectedLocale == locale,
                   label: Text(locale.label),
                   onSelected: (_) => _setLocale(locale),
                 );
               }).toList(),
             ),
             const SizedBox(height: 16),
-            _PreviewCard(preview: preview, locale: _locale),
+            _PreviewCard(preview: preview, locale: selectedLocale),
             const SizedBox(height: 12),
             FilledButton.icon(
               onPressed: _spendCredit,

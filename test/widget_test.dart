@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:learn_flutter/chapter_08/async_network_lab_page.dart';
@@ -178,7 +179,7 @@ void main() {
   testWidgets('Home page lists learning chapter entries', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const MyApp());
+    await _pumpLearningApp(tester);
 
     expect(find.text('Flutter 学习目录'), findsOneWidget);
     expect(find.text('03 Widget 生命周期'), findsOneWidget);
@@ -207,7 +208,7 @@ void main() {
   testWidgets(
     'Lifecycle demo counter increments and reacts to config changes',
     (WidgetTester tester) async {
-      await tester.pumpWidget(const MyApp());
+      await _pumpLearningApp(tester);
 
       await tester.tap(find.text('03 Widget 生命周期'));
       await tester.pumpAndSettle();
@@ -240,7 +241,7 @@ void main() {
   testWidgets('Layout lab opens a classic layout case', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const MyApp());
+    await _pumpLearningApp(tester);
 
     await tester.tap(find.text('04 布局案例实验室'));
     await tester.pumpAndSettle();
@@ -269,7 +270,7 @@ void main() {
       '安全区布局',
     ];
 
-    await tester.pumpWidget(const MyApp());
+    await _pumpLearningApp(tester);
     await tester.tap(find.text('04 布局案例实验室'));
     await tester.pumpAndSettle();
 
@@ -291,7 +292,7 @@ void main() {
   testWidgets('Riverpod lab filters and updates task state', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const MyApp());
+    await _pumpLearningApp(tester);
 
     await tester.tap(find.text('05 状态管理与 Riverpod'));
     await tester.pumpAndSettle();
@@ -341,7 +342,7 @@ void main() {
       '05 AsyncNotifier + repository',
     ];
 
-    await tester.pumpWidget(const MyApp());
+    await _pumpLearningApp(tester);
     await tester.tap(find.text('05 状态管理与 Riverpod'));
     await tester.pumpAndSettle();
 
@@ -360,7 +361,7 @@ void main() {
   testWidgets('setState and AsyncNotifier repository examples handle actions', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const MyApp());
+    await _pumpLearningApp(tester);
     await tester.tap(find.text('05 状态管理与 Riverpod'));
     await tester.pumpAndSettle();
 
@@ -408,7 +409,7 @@ void main() {
       'Hero',
     ];
 
-    await tester.pumpWidget(const MyApp());
+    await _pumpLearningApp(tester);
     await tester.tap(find.text('06 转场动画实验室'));
     await tester.pumpAndSettle();
 
@@ -432,7 +433,7 @@ void main() {
   testWidgets('Route lab opens and redirects protected detail to login', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const MyApp());
+    await _pumpLearningApp(tester);
 
     await tester.tap(find.text('07 路由导航与页面组织'));
     await tester.pumpAndSettle();
@@ -479,7 +480,7 @@ void main() {
   testWidgets('Route lab passes extra when already logged in', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const MyApp());
+    await _pumpLearningApp(tester);
 
     await tester.tap(find.text('07 路由导航与页面组织'));
     await tester.pumpAndSettle();
@@ -500,7 +501,7 @@ void main() {
   testWidgets('Route lab receives create page result', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const MyApp());
+    await _pumpLearningApp(tester);
 
     await tester.tap(find.text('07 路由导航与页面组织'));
     await tester.pumpAndSettle();
@@ -524,7 +525,7 @@ void main() {
   testWidgets('Route search page reads and updates query parameters', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const MyApp());
+    await _pumpLearningApp(tester);
 
     await tester.tap(find.text('07 路由导航与页面组织'));
     await tester.pumpAndSettle();
@@ -559,7 +560,7 @@ void main() {
     };
 
     for (final entry in chapters.entries) {
-      await tester.pumpWidget(const MyApp());
+      await _pumpLearningApp(tester);
       await tester.scrollUntilVisible(
         find.text(entry.key),
         180,
@@ -686,7 +687,9 @@ void main() {
   testWidgets('Localization lab switches locale and updates placeholder', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const MaterialApp(home: LocalizationLabPage()));
+    await tester.pumpWidget(
+      const ProviderScope(child: MaterialApp(home: LocalizationLabPage())),
+    );
 
     expect(find.text('当前 locale：en'), findsOneWidget);
     expect(find.text('Create with SpellAI'), findsOneWidget);
@@ -746,4 +749,8 @@ void main() {
 
     expect(find.text('状态：后端创建用户失败'), findsOneWidget);
   });
+}
+
+Future<void> _pumpLearningApp(WidgetTester tester) async {
+  await tester.pumpWidget(const ProviderScope(child: MyApp()));
 }
