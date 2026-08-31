@@ -254,6 +254,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.1.2"
+  flutter_keyboard_controller:
+    dependency: "direct main"
+    description:
+      name: flutter_keyboard_controller
+      sha256: "31e67e0dc95ea37c45369935d88e389b883229aa18d84df0eff5e022cd2e7892"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.4"
   flutter_line_sdk:
     dependency: "direct main"
     description:

@@ -75,6 +75,12 @@ class LearningHomePage extends StatelessWidget {
         icon: Icons.verified_user_outlined,
         path: LearningRoutes.chapter14FirebaseAuth,
       ),
+      _LearningEntry(
+        title: '15 聊天键盘上移动画',
+        subtitle: '复刻键盘弹起时聊天列表整体上移的卡顿场景',
+        icon: Icons.keyboard_alt_outlined,
+        path: LearningRoutes.chapter15ChatKeyboardJank,
+      ),
     ];
 
     return Scaffold(

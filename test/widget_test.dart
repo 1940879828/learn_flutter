@@ -195,6 +195,7 @@ void main() {
       '11 工程化调试测试构建',
       '13 多语言与本地化',
       '14 Firebase 登录与账号状态',
+      '15 聊天键盘上移动画',
     ]) {
       await tester.scrollUntilVisible(
         find.text(title),

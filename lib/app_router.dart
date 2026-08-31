@@ -16,6 +16,7 @@ import 'chapter_10/media_lab_page.dart';
 import 'chapter_11/engineering_checklist_page.dart';
 import 'chapter_13/localization_lab_page.dart';
 import 'chapter_14/firebase_auth_lab_page.dart';
+import 'chapter_15/chat_keyboard_jank_page.dart';
 import 'learning_home_page.dart';
 import 'learning_routes.dart';
 
@@ -114,6 +115,10 @@ GoRouter createLearningRouter(RouteLabSession session) {
       GoRoute(
         path: LearningRoutes.chapter14FirebaseAuth,
         builder: (context, state) => const FirebaseAuthLabPage(),
+      ),
+      GoRoute(
+        path: LearningRoutes.chapter15ChatKeyboardJank,
+        builder: (context, state) => const ChatKeyboardJankPage(),
       ),
     ],
   );
