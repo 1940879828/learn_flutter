@@ -11,166 +11,57 @@ class ChatKeyboardJankPage extends StatefulWidget {
 }
 
 class _ChatKeyboardJankPageState extends State<ChatKeyboardJankPage> {
+  // 聊天记录
   static final _messages = _buildMessages();
 
+  // 输入框控制器
   final _controller = TextEditingController(text: '帮我把这张图改成电影感');
+  // 焦点状态对像 拿它的 addListener 来监听焦点变化
   final _focusNode = FocusNode();
-  final _promptFieldKey = GlobalKey();
+  // 输入框当前是否聚焦
   bool _inputFocused = false;
-  bool _heightDebugScheduled = false;
-  bool? _lastLoggedInputFocused;
-  double? _lastLoggedKeyboardInset;
-  double? _lastLoggedPromptHeight;
-  double? _lastLoggedVisualOffset;
-  double? _lastLoggedKeyboardProgress;
-  KeyboardAnimation? _keyboardAnimation;
-  double _nativeKeyboardHeight = 0;
-  double _nativeKeyboardProgress = 0;
 
   @override
   void initState() {
     super.initState();
+    // 配置监听输入框聚焦状态的回调函数
     _focusNode.addListener(_handleFocusChanged);
-    _controller.addListener(_handlePromptChanged);
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final nextAnimation = KeyboardControllerScope.maybeOf(context);
-    if (nextAnimation == _keyboardAnimation) return;
-
-    _keyboardAnimation?.heightNotifier.removeListener(
-      _handleNativeKeyboardFrame,
-    );
-    _keyboardAnimation?.progressNotifier.removeListener(
-      _handleNativeKeyboardFrame,
-    );
-
-    _keyboardAnimation = nextAnimation;
-    _nativeKeyboardHeight = nextAnimation?.height ?? 0;
-    _nativeKeyboardProgress = nextAnimation?.progress ?? 0;
-
-    _keyboardAnimation?.heightNotifier.addListener(_handleNativeKeyboardFrame);
-    _keyboardAnimation?.progressNotifier.addListener(
-      _handleNativeKeyboardFrame,
-    );
   }
 
   @override
   void dispose() {
-    _keyboardAnimation?.heightNotifier.removeListener(
-      _handleNativeKeyboardFrame,
-    );
-    _keyboardAnimation?.progressNotifier.removeListener(
-      _handleNativeKeyboardFrame,
-    );
-    _controller.removeListener(_handlePromptChanged);
     _focusNode.removeListener(_handleFocusChanged);
     _focusNode.dispose();
     _controller.dispose();
     super.dispose();
   }
 
+  // 聚焦状态变化时执行这个回调函数
   void _handleFocusChanged() {
     if (_inputFocused == _focusNode.hasFocus) return;
     setState(() {
       _inputFocused = _focusNode.hasFocus;
     });
-    _schedulePromptHeightDebug(
-      reason: _inputFocused ? 'focus gained' : 'focus lost',
-    );
-  }
-
-  void _handlePromptChanged() {
-    _schedulePromptHeightDebug(reason: 'text changed');
-  }
-
-  void _handleNativeKeyboardFrame() {
-    final animation = _keyboardAnimation;
-    if (animation == null) return;
-
-    _nativeKeyboardHeight = animation.height;
-    _nativeKeyboardProgress = animation.progress;
-
-    _schedulePromptHeightDebug(
-      reason: 'native keyboard frame',
-      keyboardInset: _nativeKeyboardHeight,
-      visualOffset: -_nativeKeyboardHeight,
-      keyboardProgress: _nativeKeyboardProgress,
-    );
   }
 
   void _dismissKeyboard() {
+    // 收起键盘 / 取消输入焦点 ，通知系统把当前键盘收起来
     KeyboardController.dismiss();
   }
 
-  void _schedulePromptHeightDebug({
-    required String reason,
-    double? keyboardInset,
-    double? visualOffset,
-    double? keyboardProgress,
-  }) {
-    if (_heightDebugScheduled) return;
-    _heightDebugScheduled = true;
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _heightDebugScheduled = false;
-      if (!mounted) return;
-
-      final renderObject = _promptFieldKey.currentContext?.findRenderObject();
-      if (renderObject is! RenderBox || !renderObject.hasSize) return;
-
-      final promptHeight = renderObject.size.height;
-      final inset = keyboardInset ?? _nativeKeyboardHeight;
-      final offset = visualOffset ?? -inset;
-      final progress = keyboardProgress ?? _nativeKeyboardProgress;
-      final heightChanged =
-          _lastLoggedPromptHeight == null ||
-          (promptHeight - _lastLoggedPromptHeight!).abs() >= 0.5;
-      final insetChanged =
-          _lastLoggedKeyboardInset == null ||
-          (inset - _lastLoggedKeyboardInset!).abs() >= 0.5;
-      final focusChanged = _lastLoggedInputFocused != _inputFocused;
-      final offsetChanged =
-          _lastLoggedVisualOffset == null ||
-          (offset - _lastLoggedVisualOffset!).abs() >= 0.5;
-      final progressChanged =
-          _lastLoggedKeyboardProgress == null ||
-          (progress - _lastLoggedKeyboardProgress!).abs() >= 0.01;
-
-      if (!heightChanged &&
-          !insetChanged &&
-          !focusChanged &&
-          !offsetChanged &&
-          !progressChanged) {
-        return;
-      }
-
-      _lastLoggedPromptHeight = promptHeight;
-      _lastLoggedKeyboardInset = inset;
-      _lastLoggedInputFocused = _inputFocused;
-      _lastLoggedVisualOffset = offset;
-      _lastLoggedKeyboardProgress = progress;
-
-      debugPrint(
-        '[chapter_15][prompt-height] '
-        'reason=$reason '
-        'height=${promptHeight.toStringAsFixed(1)} '
-        'nativeKeyboardHeight=${inset.toStringAsFixed(1)} '
-        'nativeKeyboardProgress=${progress.toStringAsFixed(2)} '
-        'visualOffset=${offset.toStringAsFixed(1)} '
-        'focused=$_inputFocused '
-        'textLength=${_controller.text.length}',
-      );
-    });
-  }
-
+  // “这一段 UI 描述需要重新计算”时触发：
+  // 1. Widget 第一次显示
+  // 2. 当前 State 调用了 setState()
+  // 3. 父组件 rebuild，带动子组件 build
+  // 4. MediaQuery / Theme / Localizations 等依赖变化
+  // 5. Riverpod / Provider / InheritedWidget 监听的数据变化
+  // 6. FutureBuilder / StreamBuilder 收到新结果
+  // 7. 动画每一帧驱动局部重建
+  // 8. Hot reload
   @override
   Widget build(BuildContext context) {
-    _schedulePromptHeightDebug(reason: 'build');
-
     return Scaffold(
+      // 关掉 Flutter/Scaffold 默认的键盘避让，不让 body 自动缩小。
       resizeToAvoidBottomInset: false,
       backgroundColor: const Color(0xFF090A0F),
       appBar: AppBar(
@@ -196,6 +87,7 @@ class _ChatKeyboardJankPageState extends State<ChatKeyboardJankPage> {
               const _ConversationHeader(),
               Expanded(
                 child: ClipRect(
+                  // 消息列表 + 输入栏整体包起来。键盘弹出时，KeyboardAvoidingView 会根据 native 键盘高度，把它的 child 往上移动。
                   child: KeyboardAvoidingView(
                     behavior: KeyboardAvoidingBehavior.position,
                     child: RepaintBoundary(
@@ -224,7 +116,6 @@ class _ChatKeyboardJankPageState extends State<ChatKeyboardJankPage> {
                           _ComposerBar(
                             controller: _controller,
                             focusNode: _focusNode,
-                            promptFieldKey: _promptFieldKey,
                             inputFocused: _inputFocused,
                           ),
                         ],
@@ -439,17 +330,16 @@ class _MessageBubble extends StatelessWidget {
   }
 }
 
+// 底部输入栏
 class _ComposerBar extends StatelessWidget {
   const _ComposerBar({
     required this.controller,
     required this.focusNode,
-    required this.promptFieldKey,
     required this.inputFocused,
   });
 
   final TextEditingController controller;
   final FocusNode focusNode;
-  final GlobalKey promptFieldKey;
   final bool inputFocused;
 
   @override
@@ -480,7 +370,6 @@ class _ComposerBar extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: Container(
-              key: promptFieldKey,
               constraints: const BoxConstraints(minHeight: 44),
               decoration: BoxDecoration(
                 color: const Color(0xFF1A1D27),
@@ -493,6 +382,7 @@ class _ComposerBar extends StatelessWidget {
               ),
               child: TextField(
                 controller: controller,
+                // 在这里配置了“焦点监听对象”监听这个 TextField，这个 TextField的焦点聚焦状态发生变化之后会触发回调函数
                 focusNode: focusNode,
                 minLines: 1,
                 maxLines: 4,
