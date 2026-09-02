@@ -66,7 +66,7 @@ StatefulWidget constructor
 -> State.build()
 ```
 
-依赖的上下文变化时，例如 `Theme`、`MediaQuery`、`KeyboardControllerScope` 变化：
+依赖的上下文变化时，例如 `Theme`、`MediaQuery`、`KeyboardInsetsScope` 变化：
 
 ```text
 Inherited 依赖变化
@@ -200,8 +200,8 @@ initState
 
 build
 -> 描述聊天页结构
--> KeyboardAvoidingView 根据键盘高度移动内容
--> 顶部状态条通过 KeyboardControllerScope 读取 native keyboard height/progress
+-> _KeyboardTranslatedPane 根据键盘高度用 Transform.translate 移动内容
+-> 顶部状态条通过 KeyboardInsetsScope 读取 native keyboard height/progress
 
 dispose
 -> 移除 focus listener
@@ -210,7 +210,7 @@ dispose
 
 为什么键盘高度读取不放在 `initState()`？
 
-因为 `KeyboardControllerScope` 来自 widget 树上的 context。当前页面把它放在 `_NativeKeyboardStatusStrip.build()` 里读取，由 `ValueListenableBuilder` 只重建状态条；真正的内容位移交给 `KeyboardAvoidingView` 处理。
+因为 `KeyboardInsetsScope` 来自 widget 树上的 context。当前页面把它放在 `_NativeKeyboardStatusStrip.build()` 和 `_KeyboardTranslatedPane.build()` 里读取，由 `ValueListenableBuilder` 只重建状态条或外层 transform；复杂聊天列表作为 `child` 保持稳定。
 
 ## 常见坏味道
 

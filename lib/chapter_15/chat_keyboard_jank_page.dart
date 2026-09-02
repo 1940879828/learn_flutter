@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_keyboard_controller/flutter_keyboard_controller.dart';
+import 'package:keyboard_insets_adapter/keyboard_insets_adapter.dart';
 
 import '../learning_navigation_controls.dart';
 
@@ -46,7 +46,7 @@ class _ChatKeyboardJankPageState extends State<ChatKeyboardJankPage> {
 
   void _dismissKeyboard() {
     // 收起键盘 / 取消输入焦点 ，通知系统把当前键盘收起来
-    KeyboardController.dismiss();
+    KeyboardInsetsScope.maybeOf(context)?.dismiss();
   }
 
   // “这一段 UI 描述需要重新计算”时触发：
@@ -87,9 +87,8 @@ class _ChatKeyboardJankPageState extends State<ChatKeyboardJankPage> {
               const _ConversationHeader(),
               Expanded(
                 child: ClipRect(
-                  // 消息列表 + 输入栏整体包起来。键盘弹出时，KeyboardAvoidingView 会根据 native 键盘高度，把它的 child 往上移动。
-                  child: KeyboardAvoidingView(
-                    behavior: KeyboardAvoidingBehavior.position,
+                  // 消息列表 + 输入栏整体包起来。键盘弹出时，只用 Transform 改变外层绘制位置，避免大布局每帧跟着变。
+                  child: _KeyboardTranslatedPane(
                     child: RepaintBoundary(
                       child: Column(
                         children: [
@@ -128,6 +127,40 @@ class _ChatKeyboardJankPageState extends State<ChatKeyboardJankPage> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _KeyboardTranslatedPane extends StatelessWidget {
+  const _KeyboardTranslatedPane({required this.child});
+
+  final Widget child;
+
+  static final _zeroKeyboardHeight = ValueNotifier<double>(0);
+
+  @override
+  Widget build(BuildContext context) {
+    final keyboard = KeyboardInsetsScope.maybeOf(context);
+
+    return ValueListenableBuilder<double>(
+      valueListenable: keyboard?.heightNotifier ?? _zeroKeyboardHeight,
+      child: child,
+      builder: (context, keyboardHeight, stableChild) {
+        final keyboardProgress = keyboard?.progressNotifier.value ?? 0;
+        final visualOffset = -keyboardHeight;
+
+        debugPrint(
+          '[chapter_15][keyboard] '
+          'nativeKeyboardHeight=${keyboardHeight.toStringAsFixed(1)} '
+          'nativeKeyboardProgress=${keyboardProgress.toStringAsFixed(3)} '
+          'visualOffset=${visualOffset.toStringAsFixed(1)}',
+        );
+
+        return Transform.translate(
+          offset: Offset(0, visualOffset),
+          child: stableChild,
+        );
+      },
     );
   }
 }
@@ -409,6 +442,7 @@ class _ComposerBar extends StatelessWidget {
   }
 }
 
+// 原生键盘状态条
 class _NativeKeyboardStatusStrip extends StatelessWidget {
   const _NativeKeyboardStatusStrip({
     required this.inputFocused,
@@ -419,22 +453,33 @@ class _NativeKeyboardStatusStrip extends StatelessWidget {
   final int movedMessages;
 
   static final _zeroKeyboardHeight = ValueNotifier<double>(0);
+  static final _zeroKeyboardProgress = ValueNotifier<double>(0);
+  static final _hiddenKeyboard = ValueNotifier<bool>(false);
 
   @override
   Widget build(BuildContext context) {
-    final animation = KeyboardControllerScope.maybeOf(context);
+    final keyboard = KeyboardInsetsScope.maybeOf(context);
 
     return ValueListenableBuilder<double>(
-      valueListenable: animation?.heightNotifier ?? _zeroKeyboardHeight,
+      valueListenable: keyboard?.heightNotifier ?? _zeroKeyboardHeight,
       builder: (context, keyboardHeight, _) {
-        final progress = animation?.progress ?? 0;
-        return _StatusStrip(
-          inputFocused: inputFocused,
-          keyboardVisible: keyboardHeight > 1,
-          keyboardInset: keyboardHeight,
-          keyboardProgress: progress,
-          visualOffset: -keyboardHeight,
-          movedMessages: movedMessages,
+        return ValueListenableBuilder<double>(
+          valueListenable: keyboard?.progressNotifier ?? _zeroKeyboardProgress,
+          builder: (context, keyboardProgress, _) {
+            return ValueListenableBuilder<bool>(
+              valueListenable: keyboard?.isVisibleNotifier ?? _hiddenKeyboard,
+              builder: (context, keyboardVisible, _) {
+                return _StatusStrip(
+                  inputFocused: inputFocused,
+                  keyboardVisible: keyboardVisible || keyboardHeight > 1,
+                  keyboardInset: keyboardHeight,
+                  keyboardProgress: keyboardProgress,
+                  visualOffset: -keyboardHeight,
+                  movedMessages: movedMessages,
+                );
+              },
+            );
+          },
         );
       },
     );

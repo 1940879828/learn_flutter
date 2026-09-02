@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_keyboard_controller/flutter_keyboard_controller.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:keyboard_insets_adapter/keyboard_insets_adapter.dart';
+
 import 'app_state_providers.dart';
 
 void main() async {
@@ -17,7 +18,7 @@ class MyApp extends ConsumerWidget {
     final themeMode = ref.watch(appThemeModeProvider);
     final router = ref.watch(appRouterProvider);
 
-    return KeyboardProvider(
+    return KeyboardInsetsProvider(
       child: MaterialApp.router(
         title: 'Flutter Learning',
         theme: ThemeData(

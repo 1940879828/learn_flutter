@@ -46,7 +46,9 @@ dependencies:
   flutter_riverpod: ^3.3.2
   google_sign_in: ^6.3.0
   go_router: ^14.8.1
-  flutter_keyboard_controller: ^1.0.4
+  # 仓库内自用薄插件：只拿原生键盘高度/进度/可见状态，不引入高级避让 Widget。
+  keyboard_insets_adapter:
+    path: plugins/keyboard_insets_adapter
 
 dev_dependencies:
   flutter_test:

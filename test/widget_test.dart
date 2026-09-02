@@ -579,6 +579,31 @@ void main() {
     }
   });
 
+  testWidgets('Chapter 15 chat page renders keyboard-driven chat surface', (
+    WidgetTester tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(900, 1200));
+    addTearDown(() async {
+      await tester.binding.setSurfaceSize(null);
+    });
+
+    await _pumpLearningApp(tester);
+    await tester.scrollUntilVisible(
+      find.text('15 聊天键盘上移动画'),
+      180,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.text('15 聊天键盘上移动画'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('15 聊天键盘上移复刻'), findsOneWidget);
+    expect(find.text('SpellAI Assistant'), findsOneWidget);
+    expect(find.textContaining('点击输入框，观察 native 逐帧 inset'), findsOneWidget);
+    expect(find.byType(TextField), findsOneWidget);
+    expect(find.byType(Transform), findsWidgets);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('Async network lab renders loading success and error states', (
     WidgetTester tester,
   ) async {
