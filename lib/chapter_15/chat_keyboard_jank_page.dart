@@ -89,6 +89,7 @@ class _ChatKeyboardJankPageState extends State<ChatKeyboardJankPage> {
                 child: ClipRect(
                   // 消息列表 + 输入栏整体包起来。键盘弹出时，只用 Transform 改变外层绘制位置，避免大布局每帧跟着变。
                   child: _KeyboardTranslatedPane(
+                    // 性能隔离组件 这个子树可以单独重绘，尽量不要每次都连带父级或兄弟节点一起 repaint。
                     child: RepaintBoundary(
                       child: Column(
                         children: [
@@ -140,8 +141,10 @@ class _KeyboardTranslatedPane extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 找不到返回 null
     final keyboard = KeyboardInsetsScope.maybeOf(context);
 
+    // 监听 ValueListenable，值变了就重建自己的 builder 区域。
     return ValueListenableBuilder<double>(
       valueListenable: keyboard?.heightNotifier ?? _zeroKeyboardHeight,
       child: child,

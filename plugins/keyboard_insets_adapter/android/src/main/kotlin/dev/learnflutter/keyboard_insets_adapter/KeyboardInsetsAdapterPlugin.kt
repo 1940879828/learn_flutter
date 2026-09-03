@@ -19,8 +19,11 @@ import io.flutter.plugin.common.MethodChannel
 import kotlin.math.max
 
 class KeyboardInsetsAdapterPlugin :
+    // 插件接入 Flutter engine。
     FlutterPlugin,
+    // 处理 Dart 调 native 的方法。
     MethodChannel.MethodCallHandler,
+    // 拿到 Android 当前 Activity。
     ActivityAware {
 
     private lateinit var methodChannel: MethodChannel
