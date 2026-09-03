@@ -18,6 +18,7 @@ class LearningRoutes {
   static const chapter13Localization = '/chapter-13/localization';
   static const chapter14FirebaseAuth = '/chapter-14/firebase-auth';
   static const chapter15ChatKeyboardJank = '/chapter-15/chat-keyboard-jank';
+  static const chapter16Video = '/chapter-16/video';
 
   static String taskDetailLocation(String taskId, {String? tab}) {
     return Uri(

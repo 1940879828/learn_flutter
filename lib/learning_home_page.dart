@@ -81,6 +81,12 @@ class LearningHomePage extends StatelessWidget {
         icon: Icons.keyboard_alt_outlined,
         path: LearningRoutes.chapter15ChatKeyboardJank,
       ),
+      _LearningEntry(
+        title: '16 视频示例',
+        subtitle: '视频操作',
+        icon: Icons.video_call_outlined,
+        path: LearningRoutes.chapter16Video,
+      ),
     ];
 
     return Scaffold(

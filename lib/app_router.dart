@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import 'package:learn_flutter/chapter_16/video_page.dart';
 
 import 'chapter_03/lifecycle_demo_page.dart';
 import 'chapter_04/layout_lab_page.dart';
@@ -120,6 +121,10 @@ GoRouter createLearningRouter(RouteLabSession session) {
         path: LearningRoutes.chapter15ChatKeyboardJank,
         builder: (context, state) => const ChatKeyboardJankPage(),
       ),
+      GoRoute(
+        path: LearningRoutes.chapter16Video,
+        builder: (context, state) => const VideoPage(),
+      )
     ],
   );
 }
