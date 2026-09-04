@@ -35,7 +35,8 @@
 ```bash
 # 检查设备
 fvm flutter devices
-
+adb mdns services
+adb connect 192.168.6.181:38997
 # 运行到默认设备
 fvm flutter run
 

@@ -5,7 +5,7 @@ import 'controls/video_controls.dart';
 
 // 视频区域
 class VideoPlayerSection extends StatefulWidget {
-  const VideoPlayerSection({super.key,required this.videoUrl});
+  const VideoPlayerSection({super.key, required this.videoUrl});
 
   final String videoUrl;
 
@@ -29,6 +29,10 @@ class _VideoPlayerSectionState extends State<VideoPlayerSection> {
     });
   }
 
+  void _openFullscreen() {
+    debugPrint('_openFullscreen');
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<void>(
@@ -44,14 +48,23 @@ class _VideoPlayerSectionState extends State<VideoPlayerSection> {
           videoContent = VideoPlayer(_controller);
         }
 
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AspectRatio(aspectRatio: 16 / 9, child: videoContent),
-            if (snapshot.connectionState == ConnectionState.done &&
-                !snapshot.hasError)
-              VideoControls(controller: _controller),
-          ],
+        final isReady =
+            snapshot.connectionState == ConnectionState.done &&
+            !snapshot.hasError;
+
+        return AspectRatio(
+          aspectRatio: 16 / 9,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              videoContent,
+              if (isReady)
+                VideoControls(
+                  controller: _controller,
+                  onFullscreen: _openFullscreen,
+                ),
+            ],
+          ),
         );
       },
     );
@@ -63,4 +76,3 @@ class _VideoPlayerSectionState extends State<VideoPlayerSection> {
     super.dispose();
   }
 }
-

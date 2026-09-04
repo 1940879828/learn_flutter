@@ -2,14 +2,75 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 // 视频控制器
-class VideoControls extends StatelessWidget {
-  const VideoControls({super.key, required this.controller});
+class VideoControls extends StatefulWidget {
+  const VideoControls({
+    super.key,
+    required this.controller,
+    required this.onFullscreen,
+  });
 
   final VideoPlayerController controller;
 
+  final VoidCallback onFullscreen;
+
+  @override
+  State<StatefulWidget> createState() => _VideoControlsState();
+}
+
+class _VideoControlsState extends State<VideoControls> {
+  bool _controlsVisible = false;
+
+  void _toggleControls() {
+    setState(() {
+      _controlsVisible = !_controlsVisible;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return _PlayPauseButton(controller: controller);
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: _toggleControls,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          if (_controlsVisible) ...[
+            const Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: 64,
+              child: _TopGradient(),
+            ),
+            const Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: 72,
+              child: _BottomGradient(),
+            ),
+            Positioned(
+              left: 8,
+              right: 8,
+              bottom: 4,
+              child: Row(
+                children: [
+                  _PlayPauseButton(controller: widget.controller),
+                  const Spacer(),
+                  IconButton(
+                    onPressed: widget.onFullscreen,
+                    style: const ButtonStyle(
+                      overlayColor: WidgetStatePropertyAll(Colors.transparent),
+                    ),
+                    icon: const Icon(Icons.fullscreen, color: Colors.white),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
   }
 }
 
@@ -63,6 +124,10 @@ class _PlayPauseButtonState extends State<_PlayPauseButton> {
     return IconButton(
       onPressed: _togglePlayback,
       icon: Icon(_isPlaying ? Icons.pause : Icons.play_arrow),
+      color: Colors.white,
+      style: const ButtonStyle(
+        overlayColor: WidgetStatePropertyAll(Colors.transparent),
+      ),
     );
   }
 
@@ -70,5 +135,39 @@ class _PlayPauseButtonState extends State<_PlayPauseButton> {
   void dispose() {
     widget.controller.removeListener(_syncPlaybackState);
     super.dispose();
+  }
+}
+
+class _TopGradient extends StatelessWidget {
+  const _TopGradient();
+
+  @override
+  Widget build(BuildContext context) {
+    return const DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Colors.black54, Colors.transparent],
+        ),
+      ),
+    );
+  }
+}
+
+class _BottomGradient extends StatelessWidget {
+  const _BottomGradient();
+
+  @override
+  Widget build(BuildContext context) {
+    return const DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Colors.transparent, Colors.black54],
+        ),
+      ),
+    );
   }
 }
