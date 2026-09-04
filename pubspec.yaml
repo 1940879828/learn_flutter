@@ -49,6 +49,7 @@ dependencies:
   # 仓库内自用薄插件：只拿原生键盘高度/进度/可见状态，不引入高级避让 Widget。
   keyboard_insets_adapter:
     path: plugins/keyboard_insets_adapter
+  video_player: ^2.10.1
 
 dev_dependencies:
   flutter_test:

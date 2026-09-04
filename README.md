@@ -42,7 +42,7 @@ fvm flutter run
 # 运行到指定设备
 fvm flutter run -d <device_id>
 
-fvm flutter run -d adb-a995b2d2-vlzDfF._adb-tls-connect._tcp 2>&1 | awk '!/InsetsSource|InsetsController|ActivityThread|AssistStructure|ViewRootImplStubImpl/ { print; fflush() }'
+fvm flutter run -d adb-a995b2d2-vlzDfF._adb-tls-connect._tcp | awk '!/InsetsSource|InsetsController|ActivityThread|AssistStructure|ViewRootImplStubImpl/ { print; fflush() }'
 
 fvm flutter run -d 192.168.4.236:35891 2>&1 | awk '!/InsetsSource|InsetsController|ActivityThread|AssistStructure|ViewRootImplStubImpl/ { print; fflush() }'
 
